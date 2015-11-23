@@ -14,7 +14,8 @@ typedef enum{
   
 }MaskType;
 
-int *unmaskBit(int bit, int column, int row, MaskType maskType);
+int *unmaskData(int *arr, int column, int row, MaskType maskType);
+int unmaskBit(int bit, int column, int row, MaskType maskType);
 
 
 #endif // QrMask_H

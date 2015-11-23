@@ -24,6 +24,10 @@ void tearDown(void)
  */
 void test_Mask_000(void)
 {
-	int data[16] = {1,1,1,1,0,0,1,0,1,1,0,1,0,0,0,0};
-  
+	int data[4][4] = {{1,1,1,1},
+                  {0,0,1,0},
+                  {1,1,0,1},
+                  {0,0,0,0}};
+  int *unmakedData;
+  unmakedData = unmaskData((int*)data, 4, 4, MASK_000);
 }

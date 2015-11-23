@@ -1,9 +1,22 @@
 #include "QrMask.h"
 #include "QRcodeDecode.h"
+#include <stdio.h>
 
-int unmaskData
+int *unmaskData(int *arr, int column, int row, MaskType maskType){
+  int i=0, j=0;
+  
+  for(i = 0; i < column ; i++){
+    for(j = 0; j < row ; j++){
+      arr[i*row+j] = unmaskBit(arr[i*row+j], i, j, maskType);
+      // printf("(%d)", arr[i]);
+      printf("%d", arr[i*row+j]);
+    }
+  }
+  
+  return arr;
+}
 
-int *unmaskBit(int bit, int column, int row, MaskType maskType){
+int unmaskBit(int bit, int column, int row, MaskType maskType){
   
   switch(maskType){
     
