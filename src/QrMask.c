@@ -1,28 +1,22 @@
 #include "QrMask.h"
 #include "QRcodeDecode.h"
 
-int *unmask(int *data, MaskType maskType, int width){
-  int i, j;
+int unmaskData
+
+int *unmaskBit(int bit, int column, int row, MaskType maskType){
   
-  for(i = 0 ;i = width - 1 ; i++ ){
+  switch(maskType){
     
-    for(j = 0 ;j = width - 1 ; j++ ){
+    case MASK_000:  
+      if((column+row)%2 == 0)
+        bit = bit^1;
+        break;
       
-      if (((i+j)%2) == 0){
-    
-        if (data[i*width+j] == 1)
-          data[i*width+j] = 0;
-        else
-          data[i*width+j] = 1;
-      }
-    }
+    case MASK_001:  
+      if(column%2 == 0)
+        bit = bit^1;
+        break;
   }
   
-  
- // switch(maskType){
-    
-    // MASK_000: (i+j)%2;
-    
-  //}
-  
+  return bit;
 }
