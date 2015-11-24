@@ -23,10 +23,33 @@ int unmaskBit(int bit, int column, int row, MaskType maskType){
     case MASK_000:  
       if((column+row)%2 == 0)
         bit = bit^1;
-        break;
-      
+        break; 
     case MASK_001:  
       if(column%2 == 0)
+        bit = bit^1;
+        break;
+    case MASK_010:  
+      if(row%2 == 0)
+        bit = bit^1;
+        break;
+    case MASK_011:  
+      if((column+row)%3 == 0)
+        bit = bit^1;
+        break;
+    case MASK_100:  
+      if((column/2+row/3)%2 == 0)
+        bit = bit^1;
+        break;
+    case MASK_101:  
+      if(((column*row)%2)+((column*row)%3) == 0)
+        bit = bit^1;
+        break;
+    case MASK_110:  
+      if(((column*row)%3+column*row)%2 == 0)
+        bit = bit^1;
+        break;
+    case MASK_111:  
+      if(((column*row)%3+column+row)%2 == 0)
         bit = bit^1;
         break;
   }
