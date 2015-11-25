@@ -35,7 +35,7 @@ void test_filter_left_top_pattern(void){
                       {81,82,83,84,85,86,87,88,89,90},
                       {91,92,93,94,95,96,97,98,99,100}};
                       
- filterData(dataMatrix, 10, 10);   
+ leftTopFilter((int*)dataMatrix, 10, 10);   
 }
 
 /*
@@ -64,7 +64,7 @@ void test_filter_right_top_pattern(void){
                       {81,82,83,84,85,86,87,88,89,90},
                       {91,92,93,94,95,96,97,98,99,100}};
                       
- rightTopFilter(dataMatrix, 10, 10);   
+ rightTopFilter((int*)dataMatrix, 10, 10);   
 }
 
 /*
@@ -93,7 +93,8 @@ void test_filter_left_bottom_pattern(void){
                       {81,82,83,84,85,86,87,88,89,90},
                       {91,92,93,94,95,96,97,98,99,100}};
                       
- leftBottomFilter(dataMatrix, 10, 10);   
+ leftBottomFilter((int*)dataMatrix, 10, 10);
+ darkModuleFilter((int*)dataMatrix, 10, 10);
 }
 
 /*
@@ -122,5 +123,5 @@ void test_filter_timming_pattern(void){
                       {81,82,83,84,85,86,87,88,89,90},
                       {91,92,93,94,95,96,97,98,99,100}};
                       
- timingPatternFilter(dataMatrix, 10, 10);   
+ timingPatternFilter((int*)dataMatrix, 10, 10);   
 }

@@ -2,6 +2,7 @@
 #define QrMask_H
 
 
+
 typedef enum{
   MASK_000,
   MASK_001,

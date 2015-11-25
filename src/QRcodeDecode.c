@@ -1,22 +1,50 @@
 #include "QRcodeDecode.h"
+#include "patternFilter.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-int getFormatandVersion(int *qrMatrix, int size){
+#define   ftm   formatMapTranslation
+
+/*
+ *
+ *
+ *
+ */
+
+QrMatrix *decodeQr(int *qrCode, int width){
+  
+  QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
   int count = 0;
   int i, j = 0;
-  int version, format, width;
   
-  width = sqrt(size/4);
   
-  version = getVersion(width);
-  format = getFormat(qrMatrix,width);
-
+  qrMatrix->version = getVersion(width);
+  qrMatrix->format = getFormat(qrCode,width);
+  
+  //unmask the data
+  // qrCode = unmaskData(qrCode, width, width, qrMatrix->format->maskType);
+  
+  //filter the pattern
+  qrCode = leftTopFilter(qrCode, width, width);
+  qrCode = rightTopFilter(qrCode, width, width);
+  qrCode = leftBottomFilter(qrCode, width, width);
+  qrCode = timingPatternFilter(qrCode, width, width);
+  qrCode = darkModuleFilter(qrCode, width, width);
+  dataRetrive(qrCode, width, width);
+  
+  return qrMatrix;
 }
 
-int getFormat(int *qrMatrix, int width){
-  int formatMapTranslation [15];
-  int formatMapTranslation2 [15];
+/* @brief   To get the format info of QR code
+ *
+ *
+ *
+ */
+Format *getFormat(int *qrMatrix, int width){
+  Format *format;
+  int ftm [15];
+  int ftm2 [15];
   int i = 0, j = 14;
   int range = 0;
   
@@ -28,7 +56,8 @@ int getFormat(int *qrMatrix, int width){
       range = width - 16;
     
     if(i != 6){
-      formatMapTranslation[j] = *(qrMatrix+i+8*width+range);
+      ftm[j] = *(qrMatrix+i+8*width+range);
+      *(qrMatrix+i+8*width+range) = -1;
       j--;
     }
   }
@@ -37,7 +66,10 @@ int getFormat(int *qrMatrix, int width){
   
   // Vertical format info
   for(i = 0; i <= 14 ; i++){
-      formatMapTranslation2[i] = *(qrMatrix+8+range);
+    
+      ftm2[i] = *(qrMatrix+8+range);
+      *(qrMatrix+8+range) = -1;
+      
     if(i == 5)
       range = range + 2*width;
     else if(i == 7)
@@ -48,15 +80,90 @@ int getFormat(int *qrMatrix, int width){
   }
   
   for(i = 0; i<= 14; i++){
-    if(formatMapTranslation[i] != formatMapTranslation2[i])
-      printf("Error format bit unmatch");;
-    // printf("%d",formatMapTranslation2[i]);
+    
+    if(ftm[i] != ftm2[i])
+      printf("Error format bit unmatch");
   }
-  return 0 ;
+  
+  format = formatList(format, ftm);
+  
+  return format ;
 }
 
+/* @brief   To get the version info of QR code
+ *
+ *
+ *
+ */
 int getVersion(int width){
   int version;
   version = (width-17)/4;
   return version;
+}
+
+/* @brief   To get the error correction level and the mask pattern of QR code
+ *
+ *
+ *
+ */
+Format *formatList(Format* format, int *ftm){
+  char formatStr[16];
+  int i, index = 0;
+  
+  ftm = unmaskFormatInfo(ftm);
+  
+  
+  for (i = 0; i < 15; i++)   // convert int array to string
+    index += sprintf(&formatStr[index], "%d", ftm[i]);
+    
+  if ((ftm[14] == 0)&&(ftm[13] == 1))
+    format->eccLevel = 'L';
+  else if ((ftm[14] == 0)&&(ftm[13] == 0)) 
+    format->eccLevel = 'M';
+  else if ((ftm[14] == 1)&&(ftm[13] == 1)) 
+    format->eccLevel = 'Q';
+  else if ((ftm[14] == 1)&&(ftm[13] == 0)) 
+    format->eccLevel = 'H';
+  
+  if ((ftm[12] == 0)&&(ftm[11] == 0)&&(ftm[10] == 0))
+    format->maskType = MASK_000;
+  else if ((ftm[12] == 0)&&(ftm[11] == 0)&&(ftm[10] == 1))
+    format->maskType = MASK_001;
+  else if ((ftm[12] == 0)&&(ftm[11] == 1)&&(ftm[10] == 0))
+    format->maskType = MASK_010;
+  else if ((ftm[12] == 0)&&(ftm[11] == 1)&&(ftm[10] == 1))
+    format->maskType = MASK_011;
+  else if ((ftm[12] == 1)&&(ftm[11] == 0)&&(ftm[10] == 0))
+    format->maskType = MASK_100;
+  else if ((ftm[12] == 1)&&(ftm[11] == 0)&&(ftm[10] == 1))
+    format->maskType = MASK_101;
+  else if ((ftm[12] == 1)&&(ftm[11] == 1)&&(ftm[10] == 0))
+    format->maskType = MASK_110;
+  else if ((ftm[12] == 1)&&(ftm[11] == 1)&&(ftm[10] == 1))
+    format->maskType = MASK_111;
+  
+  // printf("%s", formatStr);
+  
+  return format;
+}
+
+/* @brief   To unmask format bits of QR code
+ *
+ *
+ *
+ */
+int *unmaskFormatInfo(int* ftm){
+  int i;
+  
+  for(i = 0 ; i < 15; i++){
+    
+    // if((i == 0)||(i == 2)||(i == 4)||(i == 10)||(i == 13))
+       if((i == 14)||(i == 12)||(i == 10)||(i == 4)||(i == 1))
+      ftm[i] = ftm[i]^1;
+  }
+  return ftm;
+}
+
+int dataByteBreakUp(int *message){
+  
 }

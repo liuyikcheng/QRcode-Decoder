@@ -9,7 +9,7 @@ int *unmaskData(int *arr, int column, int row, MaskType maskType){
     for(j = 0; j < row ; j++){
       arr[i*row+j] = unmaskBit(arr[i*row+j], i, j, maskType);
       // printf("(%d)", arr[i]);
-      printf("%d", arr[i*row+j]);
+      // printf("%d", arr[i*row+j]);
     }
   }
   
