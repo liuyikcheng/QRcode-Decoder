@@ -74,7 +74,13 @@ int *darkModuleFilter(int *arr, int column, int row){
   return arr;
 }
 
-int *aligmentFilter(int *arr, int colMid, int rowMid){
+int *aligmentFilter(int *arr, int row, int colMid, int rowMid){
   int i, j;
   
+  for(i = colMid-2; i <= colMid+2; i++){
+    for(j = colMid-2; j <= colMid+2; j++){
+      arr[i*row+j] = -1;
+      printf("%d,", arr[i*row+j]);
+    }
+  }
 }

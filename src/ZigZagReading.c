@@ -32,7 +32,7 @@ int *dataRetrive(int *arr, int column, int row){
         
         if ((arr[i*row+j] >= 0)&&(i >= 0)&&(j >= 0)){
           data[k] = arr[i*row+j];
-          printf("%d,", data[k]);
+          // printf("%d,", data[k]);
           k++;
         }
       }
@@ -40,7 +40,7 @@ int *dataRetrive(int *arr, int column, int row){
     }
     // printf("\n");
     rowData = rowData - 2;
-    if (rowData == 6)
+    if (rowData == 6) // ignore the vertical timing pattern
       rowData --;
     
     i = 0;
@@ -51,7 +51,7 @@ int *dataRetrive(int *arr, int column, int row){
         // printf("(%d,%d) ", j, i);
         if ((arr[i*row+j] >= 0)&&(i >= 0)&&(j >= 0)){
           data[k] = arr[i*row+j];
-          printf("%d,", data[k]);
+          // printf("%d,", data[k]);
           k++;
         }
       }
@@ -77,7 +77,7 @@ int *dataRetriveUpward(int *arr, int column, int row){
   }
   
   for(i = 0; i <= (7) ; i++){
-    printf("%d", data[i]);
+    // printf("%d", data[i]);
   }
   
   return data;
@@ -96,7 +96,7 @@ int *dataRetriveDownward(int *arr, int column, int row){
   }
   
   for(i = 0; i <= 7 ; i++){
-    printf("%d", data[i]);
+    // printf("%d", data[i]);
   }
   
   return data;

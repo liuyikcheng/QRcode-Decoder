@@ -23,7 +23,7 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrMatrix->format = getFormat(qrCode,width);
   
   //unmask the data
-  // qrCode = unmaskData(qrCode, width, width, qrMatrix->format->maskType);
+  qrCode = unmaskData(qrCode, width, width, qrMatrix->format->maskType);
   
   //filter the pattern
   qrCode = leftTopFilter(qrCode, width, width);
@@ -31,6 +31,7 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrCode = leftBottomFilter(qrCode, width, width);
   qrCode = timingPatternFilter(qrCode, width, width);
   qrCode = darkModuleFilter(qrCode, width, width);
+  
   dataRetrive(qrCode, width, width);
   
   return qrMatrix;
