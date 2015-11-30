@@ -73,3 +73,8 @@ int *darkModuleFilter(int *arr, int column, int row){
   arr[(column-8)*row+8] = -1;
   return arr;
 }
+
+int *aligmentFilter(int *arr, int colMid, int rowMid){
+  int i, j;
+  
+}
