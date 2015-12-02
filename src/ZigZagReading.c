@@ -62,6 +62,8 @@ int *dataRetrive(int *arr, int column, int row){
     printf("\n");
   }
   
+  data[k] = -1;
+  
   return data;
 }
 

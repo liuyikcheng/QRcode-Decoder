@@ -2,6 +2,7 @@
 #include "patternFilter.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #define   ftm   formatMapTranslation
@@ -15,6 +16,7 @@
 QrMatrix *decodeQr(int *qrCode, int width){
   
   QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
+  QrBitReaderInfo *qrBitReaderInfo = (malloc(sizeof(QrBitReaderInfo)));
   int count = 0;
   int i, j = 0;
   
@@ -32,7 +34,8 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrCode = timingPatternFilter(qrCode, width, width);
   qrCode = darkModuleFilter(qrCode, width, width);
   
-  dataRetrive(qrCode, width, width);
+  qrBitReaderInfo->data = (int*)dataRetrive(qrCode, width, width);
+  qrBitReaderInfo->strData = arrayToString(qrBitReaderInfo->data);
   
   return qrMatrix;
 }
@@ -165,6 +168,49 @@ int *unmaskFormatInfo(int* ftm){
   return ftm;
 }
 
-int dataByteBreakUp(int *message){
+/* @brief   To determine the decoding mode of QR code
+ *
+ *
+ *
+ */
+char *arrayToString(int *data){
+  int i = 0;
+  char *str = malloc(1000);
+  
+  while(data[i] != -1){
+    // printf("%d", data[i]);
+    sprintf(&str[i], "%d", data[i]);
+    i++;
+  }
+  
+  paddingByteRemove(str);
+  
+  
+  return str;
+}
+
+char *paddingByteRemove(char *strData){
+  char *byteData = malloc(8);
+  char *errCode = malloc(1000);
+  int i = 0, j = 0, k = 0, errCodeBit; 
+  
+  while (i < strlen(strData)){
+
+    while (j < 8){
+    sprintf(&byteData[j], "%c", strData[i+j]);
+    j++;
+    }
+    printf("%s\n", byteData);
+    i += 8;
+    
+    if((strcmp("11101100", byteData) == 0) || (strcmp("00010001", byteData) == 0)){
+      errCodeBit = i+j;
+    }
+    
+    j = 0;
+  }
+}
+
+Mode decodeMode(char strData){
   
 }
