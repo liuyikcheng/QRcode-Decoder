@@ -22,15 +22,14 @@ void test_binary_string_to_UTF8(void){
   
   a = utf8Conversion(b);
   
-  // printf("%s", a);
-  // TEST_ASSERT_EQUAL("H", a);
+  // TEST_ASSERT_EQUAL_PTR("H", a);
 }
 
-void test_getMode(void){
+void test_getMode_should_return_BYTE(void){
   
   Mode mode;
   int arr[] = {0,1,0,0};
   mode = getMode(arr);
   
-  TEST_ASSERT_EQUAL(2, (int)mode);
+  TEST_ASSERT_EQUAL(BYTE, mode);
 }
