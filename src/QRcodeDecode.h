@@ -2,6 +2,7 @@
 #define QRcodeDecode_H
 #include "QrMask.h"
 
+
 typedef enum{
   NUMERIC,
   ALPHANUMERIC,
