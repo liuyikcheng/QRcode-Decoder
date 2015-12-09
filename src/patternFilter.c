@@ -1,6 +1,7 @@
 #include "patternFilter.h"
 #include <stdio.h>
 
+
 int *leftTopFilter(int *arr, int column, int row){
   int i=0, j=0;
   

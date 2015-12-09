@@ -3,6 +3,7 @@
 #include "ZigZagReading.h"
 #include "patternFilter.h"
 #include "QrMask.h"
+#include "DataDecode.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

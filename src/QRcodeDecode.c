@@ -1,5 +1,6 @@
 #include "QRcodeDecode.h"
 #include "patternFilter.h"
+#include "DataDecode.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,8 +36,9 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrCode = darkModuleFilter(qrCode, width, width);
   
   qrBitReaderInfo->data = (int*)dataRetrive(qrCode, width, width);
-  qrBitReaderInfo->strData = arrayToString(qrBitReaderInfo->data);
-  
+  // qrBitReaderInfo->strData = arrayToString(qrBitReaderInfo->data);
+  dataDecode((int*)qrBitReaderInfo->data, qrBitReaderInfo);
+
   return qrMatrix;
 }
 

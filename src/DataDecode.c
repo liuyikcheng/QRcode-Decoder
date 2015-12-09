@@ -4,22 +4,29 @@
 #include <string.h>
 #include <math.h>
 
-char *utf8Char[] =  {"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS", "TAB", "LF", "VT", "FF", "CR", 
-                             "SO", "SI", "DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC",
-                             "FS", "GS", "RS", "US", 
-                             " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*",
-                             "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                             ":", ";", "<", "=", ">", "?", "@",
-                             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "", "L", "M", "N", "O", "P", "Q", "R", 
-                             "S", "T", "U", "V", "W", "X", "Y", "Z", 
-                             "[", "\\", "]", "^", "_", "`",
-                             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
-                             "t", "u", "v", "w", "x", "y", "z", 
-                             "{", "|", "}", "~", "DEL" };
+char *utf8Char[] =  {"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS", "TAB",
+                      "LF",  "VT", "FF", "CR", "SO", "SI", "DLE", "DC1", "DC2", "DC3",
+                      "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", 
+                      "RS", "US", " ", "!", "\"", "#", "$", "%", "&", "'",
+                      "(", ")", "*", "+", ",", "-", ".", "/", "0", "1",
+                      "2", "3", "4", "5", "6", "7", "8", "9", ":", ";",
+                      "<", "=", ">", "?", "@", "A", "B", "C", "D", "E",
+                      "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+                      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y",
+                      "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c",
+                      "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+                      "n", "o", "p", "q", "r", "s", "t", "u", "v", "w",
+                      "x", "y", "z", "{", "|", "}", "~", "DEL" };
                              
 char *alphaNumericChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F", "G", "H",
                             "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
                             " ", "$", "%", "*", "+", "-", ".", "/", ":"};
+                            
+//character count indicator 
+int countBit1to9[] = {10,9,8};
+
+//character bit
+int charBit[] = {10,11,8};
                             
 // Character Capacities by Version, Mode, and Error Correction, until version 20 only
 int numericCap[] = {41, 34, 27, 17, 77, 63, 48, 34, 127, 101,77,58,187,149,111,82,255,202,144,106,322,255,178,139,370,293,207,154,461,365,259,202,
@@ -31,24 +38,18 @@ int alphanumericCap[] = {25,20,16,10,47,38,29,20,77,61,47,35,114,90,67,50,154,12
 int byteCap[] = {17,14,11,7,32,26,20,14,53,42,32,24,78,62,46,34,106,84,60,44,134,106,74,58,154,122,86,64,192,152,108,84,230,180,130,98,271,213,151,
                   119,321,251,177,137,367,287,203,155,425,331,241,177,458,362,258,194,520,412,292,220,586,450,322,250,644,504,354,280,718,560,394,
                   310,792,624,442,338,858,666,482,382};
+                 
+// Number of Error Correction Code Words according to version and ECC level for version 1 to 5
+int numOfDataCodewords[] = {19, 16, 13, 9, 34, 28, 22, 16, 55, 44, 34, 26, 80, 64, 48, 36, 108, 86, 62, 46};
 
-char eightBitsToChar(char *byte){
-  int a = strtol(byte, NULL, 2);
 
-  char c[100];
-  sprintf(c,"0x%x",a);
- 
-  char wc = strtol(c, NULL, 16);
-  
-  return wc;
-}
 
-char *utf8Conversion(int *byte){
+char *utf8Conversion(int *byte, int offset){
   
   char *str;
   int decimal = 0, i;
   for(i = 0; i < 8; i++){
-    decimal = decimal + (((int)pow(2,i))*byte[7-i]);
+    decimal = decimal + (((int)pow(2,i))*byte[7-i+offset]);
   }
   
   str = utf8Char[decimal];
@@ -74,6 +75,25 @@ Mode getMode(int *data){
   return mode;
 }
 
-char *dataDecode(int *data){
+void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
+  int i, numOfData = 0, offset = 0;
+  char str[100] = "";
+  
+  qrBitReaderInfo->mode = getMode(data);
+  offset += 4;
+  
+  for(i = 0; i < countBit1to9[(int)qrBitReaderInfo->mode]; i++){
+    numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit1to9[(int)qrBitReaderInfo->mode]-i-1]);
+  }
+  offset += countBit1to9[(int)qrBitReaderInfo->mode];
+  
+  for(i = 0; i < numOfData; i++){
+    sprintf(str, "%s%s", str, utf8Conversion(data, offset));
+    offset += (charBit[(int)qrBitReaderInfo->mode]);
+  }
+  qrBitReaderInfo->strData = str;
+  
+  
+  // printf("%s", qrBitReaderInfo->strData);
   
 }

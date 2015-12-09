@@ -3,6 +3,11 @@
 #include "QrMask.h"
 
 
+typedef struct{
+  char eccLevel;
+  MaskType maskType;
+}Format;
+
 typedef enum{
   NUMERIC,
   ALPHANUMERIC,
@@ -10,23 +15,20 @@ typedef enum{
 }Mode;
 
 typedef struct{
-  char eccLevel;
-  MaskType maskType;
-}Format;
-
-typedef struct{
-  int version;
-  Format* format;
-  char* message;
-}QrMatrix;
-
-
-typedef struct{
   int numberOfMsg;
   Mode mode;
   int *data;
   char *strData;
+  int offset;
 }QrBitReaderInfo;
+
+typedef struct{
+  int version;
+  Format* format;
+  QrBitReaderInfo* qrBitReaderInfo;
+}QrMatrix;
+
+
 
 QrMatrix *decodeQr(int *qrMatrix, int width);
 int getVersion(int width);
