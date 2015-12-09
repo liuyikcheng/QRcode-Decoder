@@ -16,6 +16,7 @@
 // }QrBitReaderInfo;
 
 char *utf8Conversion(int *byte, int offset);
+char *alpnumConversion(int *alpnumData, int offset, int even);
 void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo);
 Mode getMode(int *data);
 

@@ -22,7 +22,7 @@ void tearDown(void)
 }
 
 //QR code contains message "ABC 123456789" Byte mode, error correction level is L (7%)
-void test_version_1_qrcode_return_message_ABC_123456789(void){
+void xtest_version_1_qrcode_return_message_ABC_123456789(void){
   int qrCode [21] [21]  =    {{B,B,B,B,B,B,B,w,w,B,w,B,B,w,B,B,B,B,B,B,B},
                               {B,w,w,w,w,w,B,w,B,B,w,B,w,w,B,w,w,w,w,w,B},
                               {B,w,B,B,B,w,B,w,B,B,w,w,B,w,B,w,B,B,B,w,B},
@@ -88,4 +88,12 @@ void xtest_example(void)
   // getFormatandVersion((int*)qrMatrix, sizeof(qrMatrix));
                             
                             
+}
+
+void test_alpha(void){
+  int a = 2, b = 1;
+  int v = a * 45 + b;
+  
+  printf("%d\n", v%45);
+  printf("%d", v/45);
 }
