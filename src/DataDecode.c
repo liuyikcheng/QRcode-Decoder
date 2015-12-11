@@ -70,13 +70,13 @@ char *utf8Conversion(int *byte, int offset){
  */
 char *alpnumConversion(int *alpnumData, int offset, int even){
   
-  char *str;
+  char *str = malloc(sizeof(char)*2);
   int decimal = 0, val1, val2, i;
   
   for(i = 0; i < (6+5*even); i++){
     decimal = decimal + (((int)pow(2,i))*alpnumData[(6+5*even-1)-i+offset]);
   }
-  
+
   if(even){
     val1 = decimal / 45;
     val2 = decimal % 45;
@@ -86,6 +86,10 @@ char *alpnumConversion(int *alpnumData, int offset, int even){
     str = alphaNumericChar[decimal];
   
   return str;
+}
+
+char *numericConversion(int *numericData, int offset,){
+  
 }
 
 /*
@@ -108,7 +112,6 @@ Mode getMode(int *data){
     case 4: mode = BYTE; break;
   }
   
-  
   return mode;
 }
 
@@ -119,7 +122,7 @@ Mode getMode(int *data){
  *
  */
 void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
-  int i, numOfData = 0, offset = 0;
+  int i = 0, numOfData = 0, offset = 0;
   char str[100] = "";
   
   qrBitReaderInfo->mode = getMode(data);
@@ -129,17 +132,21 @@ void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
     numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit1to9[(int)qrBitReaderInfo->mode]-i-1]);
   }
   offset += countBit1to9[(int)qrBitReaderInfo->mode];
+  // printf("%d", numOfData);
   
-  for(i = 0; i < numOfData; i++){
+  i = 0;
+  
+  while (i < numOfData){
     
     switch(qrBitReaderInfo->mode){
-      // case ALPHANUMERIC:  if(numOfData%2 == 0)
-                            // sprintf(str, "%s%s", str, utf8Conversion(data, offset));
-                          // else
-                            // if(i == numOfData - 1)
-                              
+       case ALPHANUMERIC: if ((numOfData%2 != 0)&&(i == numOfData - 1))
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, 0));
+                          else
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, 1));  
+                          i += 2;
                           break;
       case BYTE:          sprintf(str, "%s%s", str, utf8Conversion(data, offset));
+                          i++;
                           break;
     }
     offset += (charBit[(int)qrBitReaderInfo->mode]);
@@ -148,5 +155,4 @@ void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   
   
   // printf("%s", qrBitReaderInfo->strData);
-  
 }

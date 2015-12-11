@@ -29,7 +29,6 @@ void test_binary_string_001101_to_one_alphanumeric_character_D(void){
   int data[] = {0,0,1,1,0,1};
   
   str = alpnumConversion(data, 0, 0);
-  // printf("%s", str);
   TEST_ASSERT_EQUAL(0, strcmp("D",str));
 }
 
@@ -52,11 +51,24 @@ void test_getMode_should_return_BYTE(void){
   TEST_ASSERT_EQUAL(BYTE, mode);
 }
 
-void test_QrBitReaderInfo_with_Byte_mode_and_Hello_message_data(void){
-  int data[] = {0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
+  void test_QrBitReaderInfo_with_Byte_mode_and_Hello_message_data(void){
+    int data[] = {0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
+    QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
+    dataDecode((int*)data, qrBitReaderInfo);
+    
+    TEST_ASSERT_EQUAL(0, strcmp("Hello",qrBitReaderInfo->strData));
+
+  }
+
+void test_QrBitReaderInfo_with_Alphanumeric_mode_and_Hello_world_message_data(void){
+  int data[] = {0,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,1,1,0,
+                1,0,0,0,1,0,1,1,1,0,0,1,0,1,1,0,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,0,1,1,0,1,
+                1,1,1,1,1};
   QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
   dataDecode((int*)data, qrBitReaderInfo);
   
-  TEST_ASSERT_EQUAL(0, strcmp("Hello",qrBitReaderInfo->strData));
+  // printf("%s", qrBitReaderInfo->strData);
+  
+  TEST_ASSERT_EQUAL(0, strcmp("HELLO WORLD",qrBitReaderInfo->strData));
 
 }

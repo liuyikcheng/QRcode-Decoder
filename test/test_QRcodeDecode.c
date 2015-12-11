@@ -89,11 +89,3 @@ void xtest_example(void)
                             
                             
 }
-
-void test_alpha(void){
-  int a = 2, b = 1;
-  int v = a * 45 + b;
-  
-  printf("%d\n", v%45);
-  printf("%d", v/45);
-}
