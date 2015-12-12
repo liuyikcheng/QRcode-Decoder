@@ -62,6 +62,20 @@ char *utf8Conversion(int *byte, int offset){
   return str;
 }
 
+char *numericConversion(int *numData, int offset, int numOfDigit){
+  
+  char *str = malloc(sizeof(char)*3);
+  int i, decimal = 0;
+  
+  for(i = 0; i < (10-3+numOfDigit); i++){
+    decimal = decimal + (((int)pow(2,i))*numData[(10-4+numOfDigit)-i+offset]);
+  }
+  sprintf(str, "%d", decimal);
+  // printf("%d", decimal);
+  return str;
+  
+}
+
 /*
  *
  *
@@ -88,9 +102,6 @@ char *alpnumConversion(int *alpnumData, int offset, int even){
   return str;
 }
 
-char *numericConversion(int *numericData, int offset,){
-  
-}
 
 /*
  *
