@@ -43,9 +43,9 @@ int byteCap[] = {17,14,11,7,32,26,20,14,53,42,32,24,78,62,46,34,106,84,60,44,134
 int numOfDataCodewords[] = {19, 16, 13, 9, 34, 28, 22, 16, 55, 44, 34, 26, 80, 64, 48, 36, 108, 86, 62, 46};
 
 
-/*
+/*@brief    The function to convert binary string to UTF-8 character
  *
- *
+ *@param    byte    The binary string data to decode
  *
  *
  */
@@ -67,8 +67,8 @@ char *numericConversion(int *numData, int offset, int numOfDigit){
   char *str = malloc(sizeof(char)*3);
   int i, decimal = 0;
   
-  for(i = 0; i < (10-3+numOfDigit); i++){
-    decimal = decimal + (((int)pow(2,i))*numData[(10-4+numOfDigit)-i+offset]);
+  for(i = 0; i < (10-3*(3-numOfDigit)); i++){
+    decimal = decimal + (((int)pow(2,i))*numData[(10-3*(3-numOfDigit))-1-i+offset]);
   }
   sprintf(str, "%d", decimal);
   // printf("%d", decimal);
@@ -150,10 +150,18 @@ void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   while (i < numOfData){
     
     switch(qrBitReaderInfo->mode){
-       case ALPHANUMERIC: if ((numOfData%2 != 0)&&(i == numOfData - 1))
-                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, 0));
+      case NUMERIC:       if ((numOfData%3 != 0)&&(numOfData-i == 2))
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 2));
+                          else if ((numOfData%3 != 0)&&(numOfData-i == 1))
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 1));
                           else
-                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, 1));  
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 3));
+                          i += 3;
+                          break;
+      case ALPHANUMERIC:  if ((numOfData%2 != 0)&&(i == numOfData - 1))
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, ODD));
+                          else
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, EVEN));  
                           i += 2;
                           break;
       case BYTE:          sprintf(str, "%s%s", str, utf8Conversion(data, offset));

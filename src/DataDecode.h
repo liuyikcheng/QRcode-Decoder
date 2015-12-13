@@ -21,4 +21,7 @@ char *numericConversion(int *numData, int offset, int numOfDigit);
 void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo);
 Mode getMode(int *data);
 
+#define ODD   0
+#define EVEN  1
+
 #endif // DataDecode_H
