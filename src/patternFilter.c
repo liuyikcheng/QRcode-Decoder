@@ -1,7 +1,13 @@
 #include "patternFilter.h"
 #include <stdio.h>
 
-
+/*@brief    The filter out the left top position pattern
+ *
+ *@param    arr         The array of the QR code
+ *          column      The number of column of the QR code
+ *          row         The number of row of the QR code
+ *@retval   arr         The filtered array
+ */ 
 int *leftTopFilter(int *arr, int column, int row){
   int i=0, j=0;
   
@@ -19,6 +25,13 @@ int *leftTopFilter(int *arr, int column, int row){
   return arr;
 }
 
+/*@brief    The filter out the right top position pattern
+ *
+ *@param    arr         The array of the QR code
+ *          column      The number of column of the QR code
+ *          row         The number of row of the QR code
+ *@retval   arr         The filtered array
+ */ 
 int *rightTopFilter(int *arr, int column, int row){
   int i=0, j=0;
   

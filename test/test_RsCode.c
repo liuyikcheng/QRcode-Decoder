@@ -16,13 +16,13 @@ void test_rsCode(void)
   
   gen_poly();	
   
-  int data[] = {13,45,789,332};
-  int eras_pos[] = {1,2};
+  dtype data[6] = {'A','C','D','E'};
+  // int eras_pos[] = {1,2};
   int a;
   
-	a = eras_dec_rs(data, eras_pos, 2);
+	a = encode_rs(data, &data[3]);
   
   
   
-  printf("%d", a);
+  // printf("%d", a);
 }

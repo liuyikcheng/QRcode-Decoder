@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 
+//character table
 char *utf8Char[] =  {"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS", "TAB",
                       "LF",  "VT", "FF", "CR", "SO", "SI", "DLE", "DC1", "DC2", "DC3",
                       "DC4", "NAK", "SYN", "ETB", "CAN", "EM", "SUB", "ESC", "FS", "GS", 
@@ -22,10 +23,10 @@ char *alphaNumericChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A
                             "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
                             " ", "$", "%", "*", "+", "-", ".", "/", ":"};
                             
-//character count indicator 
+//character count bits indicator by the coding mode
 int countBit1to9[] = {10,9,8};
 
-//character bit
+//each character bit based on different coding mode
 int charBit[] = {10,11,8};
                             
 // Character Capacities by Version, Mode, and Error Correction, until version 20 only
@@ -46,8 +47,9 @@ int numOfDataCodewords[] = {19, 16, 13, 9, 34, 28, 22, 16, 55, 44, 34, 26, 80, 6
 /*@brief    The function to convert binary string to UTF-8 character
  *
  *@param    byte    The binary string data to decode
+ *          offset  The position of bit start to be process
  *
- *
+ *@retval   str     Decoded character
  */
 char *utf8Conversion(int *byte, int offset){
   
@@ -62,6 +64,13 @@ char *utf8Conversion(int *byte, int offset){
   return str;
 }
 
+/*@brief    The function to convert binary string to numeric character
+ *
+ *@param    numData     The binary string data to decode
+ *          offset      The position of bit start to be process
+ *          numOfDigit  Number of digit in the binary string
+ *@retval   str         Decoded characters
+ */ 
 char *numericConversion(int *numData, int offset, int numOfDigit){
   
   char *str = malloc(sizeof(char)*3);
@@ -76,12 +85,14 @@ char *numericConversion(int *numData, int offset, int numOfDigit){
   
 }
 
-/*
+/*@brief    The function to convert binary string to alphanumeric character
  *
- *
- *
- *
- */
+ *@param    alpnumData  The binary string data to decode
+ *          offset      The position of bit start to be process
+ *          even        1   The data contain even number of character
+ *                      0   The data contain odd number of character
+ *@retval   str         Decoded characters
+ */ 
 char *alpnumConversion(int *alpnumData, int offset, int even){
   
   char *str = malloc(sizeof(char)*2);
@@ -103,12 +114,12 @@ char *alpnumConversion(int *alpnumData, int offset, int even){
 }
 
 
-/*
+/*@brief    The function to identify the coding mode of the data
  *
- *
- *
- *
- */
+ *@param    data    The binary string data to decode
+ *          
+ *@retval   mode    The data coding mode
+ */ 
 Mode getMode(int *data){
   Mode mode;
   int decimal = 0, i;
@@ -126,12 +137,13 @@ Mode getMode(int *data){
   return mode;
 }
 
-/*
+/*@brief    The function to decode the binary string data and store the information to qrBitReaderInfo
  *
- *
- *
- *
- */
+ *@param    data              The binary string data to decode
+ *          qrBitReaderInfo   The information of the QR code message
+ *          
+ *@retval   none
+ */ 
 void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   int i = 0, numOfData = 0, offset = 0;
   char str[100] = "";
