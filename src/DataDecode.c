@@ -40,8 +40,6 @@ int byteCap[] = {17,14,11,7,32,26,20,14,53,42,32,24,78,62,46,34,106,84,60,44,134
                   119,321,251,177,137,367,287,203,155,425,331,241,177,458,362,258,194,520,412,292,220,586,450,322,250,644,504,354,280,718,560,394,
                   310,792,624,442,338,858,666,482,382};
                  
-// Number of Error Correction Code Words according to version and ECC level for version 1 to 5
-int numOfDataCodewords[] = {19, 16, 13, 9, 34, 28, 22, 16, 55, 44, 34, 26, 80, 64, 48, 36, 108, 86, 62, 46};
 
 
 /*@brief    The function to convert binary string to UTF-8 character
@@ -73,7 +71,7 @@ char *utf8Conversion(int *byte, int offset){
  */ 
 char *numericConversion(int *numData, int offset, int numOfDigit){
   
-  char *str = malloc(sizeof(char)*3);
+  char *str = malloc(sizeof(char)*numOfDigit);
   int i, decimal = 0;
   
   for(i = 0; i < (10-3*(3-numOfDigit)); i++){
@@ -144,9 +142,10 @@ Mode getMode(int *data){
  *          
  *@retval   none
  */ 
-void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
+char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   int i = 0, numOfData = 0, offset = 0;
   char str[100] = "";
+  char *a;
   
   qrBitReaderInfo->mode = getMode(data);
   offset += 4;
@@ -155,7 +154,6 @@ void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
     numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit1to9[(int)qrBitReaderInfo->mode]-i-1]);
   }
   offset += countBit1to9[(int)qrBitReaderInfo->mode];
-  // printf("%d", numOfData);
   
   i = 0;
   
@@ -182,8 +180,10 @@ void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
     }
     offset += (charBit[(int)qrBitReaderInfo->mode]);
   }
-  qrBitReaderInfo->strData = str;
   
+  a = str;
   
+  // qrBitReaderInfo->strData = str;
   // printf("%s", qrBitReaderInfo->strData);
+  return a;
 }

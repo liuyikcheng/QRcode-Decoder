@@ -8,6 +8,9 @@
 
 #define   ftm   formatMapTranslation
 
+// Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
+int numOfDataCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
+
 /*
  *
  *
@@ -21,6 +24,7 @@ QrMatrix *decodeQr(int *qrCode, int width){
   int count = 0;
   int i, j = 0;
   
+  int *a;
   
   qrMatrix->version = getVersion(width);
   qrMatrix->format = getFormat(qrCode,width);
@@ -36,9 +40,22 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrCode = darkModuleFilter(qrCode, width, width);
   
   qrBitReaderInfo->data = (int*)dataRetrive(qrCode, width, width);
-  // qrBitReaderInfo->strData = arrayToString(qrBitReaderInfo->data);
-  dataDecode((int*)qrBitReaderInfo->data, qrBitReaderInfo);
 
+  // qrBitReaderInfo->strData = malloc(sizeof(char)*100);
+  sprintf(qrMatrix->msg,"%s", dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
+  
+  // printf("\n%s",dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
+  // printf("\n%s",qrMatrix->msg);
+  
+  
+  
+  errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
+  
+  for(i=0;i<7;i++){
+    
+  // printf("%d", qrBitReaderInfo->errCodeData[i]);
+  }
+  qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
   return qrMatrix;
 }
 
@@ -123,13 +140,13 @@ Format *formatList(Format* format, int *ftm){
     index += sprintf(&formatStr[index], "%d", ftm[i]);
     
   if ((ftm[14] == 0)&&(ftm[13] == 1))
-    format->eccLevel = 'L';
+    format->eccLevel = LOW;
   else if ((ftm[14] == 0)&&(ftm[13] == 0)) 
-    format->eccLevel = 'M';
+    format->eccLevel = MEDIUM;
   else if ((ftm[14] == 1)&&(ftm[13] == 1)) 
-    format->eccLevel = 'Q';
+    format->eccLevel = QUARTILE;
   else if ((ftm[14] == 1)&&(ftm[13] == 0)) 
-    format->eccLevel = 'H';
+    format->eccLevel = HIGH;
   
   if ((ftm[12] == 0)&&(ftm[11] == 0)&&(ftm[10] == 0))
     format->maskType = MASK_000;
@@ -170,49 +187,29 @@ int *unmaskFormatInfo(int* ftm){
   return ftm;
 }
 
-/* @brief   To determine the decoding mode of QR code
- *
- *
- *
- */
-char *arrayToString(int *data){
-  int i = 0;
-  char *str = malloc(1000);
+
+int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode){
+  int i, j, decimal = 0;
+  int *errCodeData = malloc(sizeof(int)*numOfErrDatacode-1);
+
   
-  while(data[i] != -1){
-    // printf("%d", data[i]);
-    sprintf(&str[i], "%d", data[i]);
+  while (qrBitReaderInfo->data[i] != -1){
     i++;
   }
+  // printf("%d\n", i);
   
-  paddingByteRemove(str);
-  
-  
-  return str;
-}
-
-char *paddingByteRemove(char *strData){
-  char *byteData = malloc(8);
-  char *errCode = malloc(1000);
-  int i = 0, j = 0, k = 0, errCodeBit; 
-  
-  while (i < strlen(strData)){
-
-    while (j < 8){
-    sprintf(&byteData[j], "%c", strData[i+j]);
-    j++;
-    }
-    printf("%s\n", byteData);
-    i += 8;
+  for (numOfErrDatacode = numOfErrDatacode-1; numOfErrDatacode >= 0; numOfErrDatacode--){
+    i = i - 8;
+    decimal = 0;
     
-    if((strcmp("11101100", byteData) == 0) || (strcmp("00010001", byteData) == 0)){
-      errCodeBit = i+j;
+    for (j = 0; j < 8; j++){
+      // printf("%d", qrBitReaderInfo->data[i+j]);
+      
+      decimal = decimal + (((int)pow(2,j))*qrBitReaderInfo->data[i+(7-j)]);
     }
-    
-    j = 0;
+    printf("%d,", decimal);
+    errCodeData[numOfErrDatacode] = decimal;
   }
-}
-
-Mode decodeMode(char strData){
   
+  return errCodeData;
 }

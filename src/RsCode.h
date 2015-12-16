@@ -1,58 +1,100 @@
-#ifndef RsCode_H
-#define RsCode_H
-
-/* Global definitions for Reed-Solomon encoder/decoder
- * Phil Karn KA9Q, September 1996
+/* Reed Solomon Coding for glyphs
+ * Copyright Henry Minsky (hqm@alum.mit.edu) 1991-2009
  *
- * The parameters MM and KK specify the Reed-Solomon code parameters.
+ * This software library is licensed under terms of the GNU GENERAL
+ * PUBLIC LICENSE
  *
- * Set MM to be the size of each code symbol in bits. The Reed-Solomon
- * block size will then be NN = 2**M - 1 symbols. Supported values are
- * defined in rs.c.
+ * RSCODE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Set KK to be the number of data symbols in each block, which must be
- * less than the block size. The code will then be able to correct up
- * to NN-KK erasures or (NN-KK)/2 errors, or combinations thereof with
- * each error counting as two erasures.
- */
-#ifdef	MSDOS
-#define	inline	/* broken MSC 5.0 */
-#endif
-#define MM  8		/* RS code over GF(2**MM) - change to suit */
-#define KK 192 /* 223 */		/* KK = number of information symbols */
-
-#define	NN ((1 << MM) - 1)
-
-#if (MM <= 8)
-typedef unsigned char dtype;
-#else
-typedef unsigned int dtype;
-#endif
-
-/* Initialization function */
-void init_rs(void);
-
-/* These two functions *must* be called in this order (e.g.,
- * by init_rs()) before any encoding/decoding
+ * RSCODE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Rscode.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Source code is available at http://rscode.sourceforge.net
+ *
+ * Commercial licensing is available under a separate license, please
+ * contact author for details.
+ *
  */
 
-void generate_gf(void);	/* Generate Galois Field */
-void gen_poly(void);	/* Generate generator polynomial */
+/****************************************************************
+  
+  Below is NPAR, the only compile-time parameter you should have to
+  modify.
+  
+  It is the number of parity bytes which will be appended to
+  your data to create a codeword.
 
-/* Reed-Solomon encoding
- * data[] is the input block, parity symbols are placed in bb[]
- * bb[] may lie past the end of the data, e.g., for (255,223):
- *	encode_rs(&data[0],&data[223]);
- */
-int encode_rs(dtype data[], dtype bb[]);
+  Note that the maximum codeword size is 255, so the
+  sum of your message length plus parity should be less than
+  or equal to this maximum limit.
 
-/* Reed-Solomon erasures-and-errors decoding
- * The received block goes into data[], and a list of zero-origin
- * erasure positions, if any, goes in eras_pos[] with a count in no_eras.
- *
- * The decoder corrects the symbols in place, if possible and returns
- * the number of corrected symbols. If the codeword is illegal or
- * uncorrectible, the data array is unchanged and -1 is returned
- */
-int eras_dec_rs(dtype data[], int eras_pos[], int no_eras);
-#endif // RsCode_H
+  In practice, you will get slooow error correction and decoding
+  if you use more than a reasonably small number of parity bytes.
+  (say, 10 or 20)
+
+  ****************************************************************/
+
+#define NPAR 4
+
+/****************************************************************/
+
+
+
+
+#define TRUE 1
+#define FALSE 0
+
+typedef unsigned long BIT32;
+typedef unsigned short BIT16;
+
+/* **************************************************************** */
+
+/* Maximum degree of various polynomials. */
+#define MAXDEG (NPAR*2)
+
+/*************************************/
+/* Encoder parity bytes */
+extern int pBytes[MAXDEG];
+
+/* Decoder syndrome bytes */
+extern int synBytes[MAXDEG];
+
+/* print debugging info */
+extern int DEBUG;
+
+/* Reed Solomon encode/decode routines */
+void initialize_ecc (void);
+int check_syndrome (void);
+void decode_data (unsigned char data[], int nbytes);
+void encode_data (unsigned char msg[], int nbytes, unsigned char dst[]);
+
+/* CRC-CCITT checksum generator */
+BIT16 crc_ccitt(unsigned char *msg, int len);
+
+/* galois arithmetic tables */
+extern int gexp[];
+extern int glog[];
+
+void init_galois_tables (void);
+int ginv(int elt); 
+int gmult(int a, int b);
+
+
+/* Error location routines */
+int correct_errors_erasures (unsigned char codeword[], int csize,int nerasures, int erasures[]);
+
+/* polynomial arithmetic */
+void add_polys(int dst[], int src[]) ;
+void scale_poly(int k, int poly[]);
+void mult_polys(int dst[], int p1[], int p2[]);
+
+void copy_poly(int dst[], int src[]);
+void zero_poly(int poly[]);

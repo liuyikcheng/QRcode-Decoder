@@ -18,10 +18,13 @@
 char *utf8Conversion(int *byte, int offset);
 char *alpnumConversion(int *alpnumData, int offset, int even);
 char *numericConversion(int *numData, int offset, int numOfDigit);
-void dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo);
+char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo);
 Mode getMode(int *data);
+int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode);
 
 #define ODD   0
 #define EVEN  1
+
+
 
 #endif // DataDecode_H

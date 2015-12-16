@@ -2,11 +2,12 @@
 #define QRcodeDecode_H
 #include "QrMask.h"
 
-
-typedef struct{
-  char eccLevel;
-  MaskType maskType;
-}Format;
+typedef enum{
+  LOW,        // 	7% of codewords can be restored
+  MEDIUM,     // 	15% of codewords can be restored
+  QUARTILE,   // 	25% of codewords can be restored
+  HIGH        // 	30% of codewords can be restored
+}EccLevel;
 
 typedef enum{
   NUMERIC,
@@ -15,10 +16,15 @@ typedef enum{
 }Mode;
 
 typedef struct{
+  EccLevel eccLevel;
+  MaskType maskType;
+}Format;
+
+typedef struct{
   int numberOfMsg;
   Mode mode;
   int *data;
-  char *strData;
+  int *errCodeData;
   int offset;
 }QrBitReaderInfo;
 
@@ -26,6 +32,7 @@ typedef struct{
   int version;
   Format* format;
   QrBitReaderInfo* qrBitReaderInfo;
+  char msg[1000];
 }QrMatrix;
 
 
@@ -35,7 +42,6 @@ int getVersion(int width);
 Format *getFormat(int *qrMatrix, int version);
 Format *formatList(Format* format, int *formatMapTranslation);
 int *unmaskFormatInfo(int* formatMapTranslation);
-char *arrayToString(int *data);
-char *paddingByteRemove(char *data);
+
 
 #endif // QRcodeDecode_H

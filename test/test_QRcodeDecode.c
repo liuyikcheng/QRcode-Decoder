@@ -21,8 +21,8 @@ void tearDown(void)
 {
 }
 
-//QR code contains message "ABC 123456789" Byte mode, error correction level is L (7%)
-void xtest_version_1_qrcode_return_message_ABC_123456789(void){
+//QR code contains message "ABC 123456789" Byte mode, error correction level is Low
+void test_version_1_qrcode_return_message_ABC_123456789(void){
   int qrCode [21] [21]  =    {{B,B,B,B,B,B,B,w,w,B,w,B,B,w,B,B,B,B,B,B,B},
                               {B,w,w,w,w,w,B,w,B,B,w,B,w,w,B,w,w,w,w,w,B},
                               {B,w,B,B,B,w,B,w,B,B,w,w,B,w,B,w,B,B,B,w,B},
@@ -48,11 +48,11 @@ void xtest_version_1_qrcode_return_message_ABC_123456789(void){
   
   QrMatrix *qrMatrix;
   qrMatrix = decodeQr((int*)qrCode, get_Width(qrCode));
-  
-  // printf("...%d", (-1^1));
+  // printf("%s",qrMatrix->msg);
+  TEST_ASSERT_EQUAL(0, strcmp("ABC 123456789", qrMatrix->msg));
   TEST_ASSERT_EQUAL(1, qrMatrix->version);
-  // TEST_ASSERT_EQUAL(7, qrMatrix->format->maskType);
-  TEST_ASSERT_EQUAL('L', qrMatrix->format->eccLevel);
+  TEST_ASSERT_EQUAL(7, qrMatrix->format->maskType);
+  TEST_ASSERT_EQUAL(LOW, qrMatrix->format->eccLevel);
 }
 
 //Create a qr code 2d array matrix version 2
