@@ -8,6 +8,8 @@
 
 #define   ftm   formatMapTranslation
 
+
+
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
 int numOfDataCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
 
@@ -213,3 +215,5 @@ int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode)
   
   return errCodeData;
 }
+
+

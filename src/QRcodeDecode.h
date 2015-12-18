@@ -37,6 +37,7 @@ typedef struct{
 
 
 
+
 QrMatrix *decodeQr(int *qrMatrix, int width);
 int getVersion(int width);
 Format *getFormat(int *qrMatrix, int version);

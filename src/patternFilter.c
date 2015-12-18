@@ -1,6 +1,11 @@
 #include "patternFilter.h"
 #include <stdio.h>
 
+
+int apv1[] = {-1};
+int apv2[] = {6,18,-1};
+int *verAligPattern[] = {apv1,apv2};
+
 /*@brief    The filter out the left top position pattern
  *
  *@param    arr         The array of the QR code
@@ -49,6 +54,13 @@ int *rightTopFilter(int *arr, int column, int row){
   return arr;
 }
 
+/*@brief    The filter out the left bottom position pattern
+ *
+ *@param    arr         The array of the QR code
+ *          column      The number of column of the QR code
+ *          row         The number of row of the QR code
+ *@retval   arr         The filtered array
+ */ 
 int *leftBottomFilter(int *arr, int column, int row){
   int i=0, j=0;
   
@@ -66,6 +78,13 @@ int *leftBottomFilter(int *arr, int column, int row){
   return arr;
 }
 
+/*@brief    The filter out the timing pattern
+ *
+ *@param    arr         The array of the QR code
+ *          column      The number of column of the QR code
+ *          row         The number of row of the QR code
+ *@retval   arr         The filtered array
+ */ 
 int *timingPatternFilter(int *arr, int column, int row){
   int i=0, j=0;
   
@@ -97,4 +116,13 @@ int *aligmentFilter(int *arr, int row, int colMid, int rowMid){
       printf("%d,", arr[i*row+j]);
     }
   }
+}
+
+int *aligmentFilterVer(int *arr, int version){
+  
+  int *position;
+  int i, j;
+  position = verAligPattern[version-1];
+  
+  
 }

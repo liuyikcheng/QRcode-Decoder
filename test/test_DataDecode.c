@@ -80,10 +80,11 @@ void test_getMode_should_return_BYTE(void){
 
 void test_QrBitReaderInfo_with_Byte_mode_and_Hello_message_data(void){
   int data[] = {0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
-  QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
-  qrBitReaderInfo->strData = dataDecode((int*)data, qrBitReaderInfo);
+  char *message;
+  QrBitReaderInfo* qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
+  message = dataDecode((int*)data, qrBitReaderInfo);
     
-  TEST_ASSERT_EQUAL(0, strcmp("Hello",qrBitReaderInfo->strData));
+  TEST_ASSERT_EQUAL(0, strcmp("Hello",message));
 
 }
 
@@ -91,22 +92,25 @@ void xtest_QrBitReaderInfo_with_Alphanumeric_mode_and_Hello_world_message_data(v
   int data[] = {0,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,1,1,0,
                 1,0,0,0,1,0,1,1,1,0,0,1,0,1,1,0,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,0,1,1,0,1,
                 1,1,1,1,1};
-  QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
-  dataDecode((int*)data, qrBitReaderInfo);
+                
+  char *message;
+  QrBitReaderInfo* qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
+  message = dataDecode((int*)data, qrBitReaderInfo);
   
   // printf("%s", qrBitReaderInfo->strData);
   
-  TEST_ASSERT_EQUAL(0, strcmp("HELLO WORLD",qrBitReaderInfo->strData));
+  TEST_ASSERT_EQUAL(0, strcmp("HELLO WORLD",message));
 
 }
 
 void xtest_QrBitReaderInfo_with_numeric_mode_and_8675309_message_data(void){
   int data[] = {0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,0,0,0,1,1,1,0,0,0,0,1,0,0,1,0,1,0,0,1};
-  QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
-  dataDecode((int*)data, qrBitReaderInfo);
+  char *message;
+  QrBitReaderInfo* qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
+  message = dataDecode((int*)data, qrBitReaderInfo);
   
   // printf("%s", qrBitReaderInfo->strData);
   
-  TEST_ASSERT_EQUAL(0, strcmp("8675309",qrBitReaderInfo->strData));
+  TEST_ASSERT_EQUAL(0, strcmp("8675309",message));
 
 }

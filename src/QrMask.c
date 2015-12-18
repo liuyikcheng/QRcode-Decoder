@@ -1,5 +1,5 @@
 #include "QrMask.h"
-#include "QRcodeDecode.h"
+// #include "QRcodeDecode.h"
 #include <stdio.h>
 
 int *unmaskData(int *arr, int column, int row, MaskType maskType){

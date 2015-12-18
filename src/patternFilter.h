@@ -8,4 +8,5 @@ int *timingPatternFilter(int *arr, int column, int row);
 int *darkModuleFilter(int *arr, int column, int row);
 int *aligmentFilter(int *arr, int row, int colMid, int rowMid);
 
+
 #endif // patternFilter_H

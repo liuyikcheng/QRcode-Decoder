@@ -15,40 +15,6 @@ void tearDown(void)
 
 
 /**
- *
- *    1   2
- *    3   4
- *    5   6    =======>   8,7,6,5,4,3,2,1
- *    7   8
- *
- */
-void xtest_arr_upward_reading(void)
-{
-	int arr [4][2] = {{1,2},{3,4},{5,6},{7,8}};
-  int expected [8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  int *data;
-  data = dataRetriveUpward(arr, 4, 2);
-  
-}
-
-/**
- *
- *    1   2
- *    3   4
- *    5   6    =======>   2,1,4,3,6,5,8,7
- *    7   8
- *
- */
-void xtest_arr_downward_reading(void)
-{
-	int arr [4][2] = {{1,2},{3,4},{5,6},{7,8}};
-  int expected [8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  int *data;
-  // data = dataRetriveDownward(arr, 4, 2);
-  
-}
-
-/**
  *     down     up
  *    1   2   6   0 
  *    3   4   8   3  

@@ -1,6 +1,6 @@
 #include "unity.h"
 #include "QrMask.h"
-#include "QRcodeDecode.h"
+// #include "QRcodeDecode.h"
 
 void setUp(void)
 {
