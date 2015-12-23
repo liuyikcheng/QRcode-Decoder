@@ -7,8 +7,11 @@
 #include <math.h>
 
 #define   ftm   formatMapTranslation
+#define   getWidth(x)   x*4+17          // x = version of QR code
 
-
+int apv1[] = {-1};
+int apv2[] = {6,18,-1};
+int *verAligPattern[] = {apv1,apv2};
 
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
 int numOfDataCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
@@ -217,3 +220,23 @@ int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode)
 }
 
 
+int *aligmentFilterVer(int *arr, int version){
+  
+  int *position;
+  int i = 0, j = 0;
+  position = verAligPattern[version-1];
+  
+  while(position[i] != -1){
+    
+    while(position[j] != -1){
+      if(((position[j] > 7)&&(position[i] > 7)) && \
+      ((position[j] <= getWidth(version) - 8)&&(position[i] > 7)) && \
+      ((position[i] <= getWidth(version) - 8)&&(position[j] > 7)) )
+        aligmentFilter(arr, getWidth(version), position[i], position[j] != -1);
+      j++;
+    }
+    i++;
+    j = 0;
+  }
+  
+}

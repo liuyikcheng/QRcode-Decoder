@@ -2,9 +2,7 @@
 #include <stdio.h>
 
 
-int apv1[] = {-1};
-int apv2[] = {6,18,-1};
-int *verAligPattern[] = {apv1,apv2};
+
 
 /*@brief    The filter out the left top position pattern
  *
@@ -118,11 +116,3 @@ int *aligmentFilter(int *arr, int row, int colMid, int rowMid){
   }
 }
 
-int *aligmentFilterVer(int *arr, int version){
-  
-  int *position;
-  int i, j;
-  position = verAligPattern[version-1];
-  
-  
-}
