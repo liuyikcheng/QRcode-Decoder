@@ -21,10 +21,21 @@ char *numericConversion(int *numData, int offset, int numOfDigit);
 char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo);
 Mode getMode(int *data);
 int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode);
+int getNumOfCountBit(int mode, int version);
+int getCharCap(int mode, int version, int errLevel);
+char *msgDecode(int *data, int mode, int offset, int countBit, int charCap);
+char *dataDecodeMsg(int* data, int version, int errLevel);
 
 #define ODD   0
 #define EVEN  1
 
+#define NUMERIC       0
+#define ALPHANUMERIC  1
+#define BYTE          2
 
+#define L       0
+#define M       1
+#define Q       2
+#define H       3
 
 #endif // DataDecode_H

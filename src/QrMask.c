@@ -29,7 +29,7 @@ int unmaskBit(int bit, int column, int row, MaskType maskType){
         bit = bit^1;
         break;
     case MASK_010:  
-      if(row%2 == 0)
+      if(row%3 == 0)
         bit = bit^1;
         break;
     case MASK_011:  

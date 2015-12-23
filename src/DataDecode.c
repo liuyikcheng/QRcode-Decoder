@@ -4,6 +4,9 @@
 #include <string.h>
 #include <math.h>
 
+
+#define verNerrlv(x,y)  4*(x - 1)+y
+
 //character table
 char *utf8Char[] =  {"NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL", "BS", "TAB",
                       "LF",  "VT", "FF", "CR", "SO", "SI", "DLE", "DC1", "DC2", "DC3",
@@ -24,7 +27,9 @@ char *alphaNumericChar[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A
                             " ", "$", "%", "*", "+", "-", ".", "/", ":"};
                             
 //character count bits indicator by the coding mode
-int countBit1to9[] = {10,9,8};
+int countBit1to9[] = {10,9,8};  //version 1 to 9
+int countBit10to26[] = {12,11,16};
+int countBit27to40[] = {14,13,16};
 
 //each character bit based on different coding mode
 int charBit[] = {10,11,8};
@@ -55,9 +60,11 @@ char *utf8Conversion(int *byte, int offset){
   int decimal = 0, i;
   for(i = 0; i < 8; i++){
     decimal = decimal + (((int)pow(2,i))*byte[7-i+offset]);
+    // printf("%d", byte[7-i+offset]);
   }
   
   str = utf8Char[decimal];
+  // printf("%s", str);
   
   return str;
 }
@@ -140,11 +147,11 @@ Mode getMode(int *data){
  *@param    data              The binary string data to decode
  *          qrBitReaderInfo   The information of the QR code message
  *          
- *@retval   none
+ *@retval   a                 message of the decoded data
  */ 
 char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   int i = 0, numOfData = 0, offset = 0;
-  char str[100] = "";
+  char str[1000] = "";
   char *a;
   
   qrBitReaderInfo->mode = getMode(data);
@@ -154,10 +161,10 @@ char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
     numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit1to9[(int)qrBitReaderInfo->mode]-i-1]);
   }
   offset += countBit1to9[(int)qrBitReaderInfo->mode];
-  
+
   i = 0;
   
-  while (i < numOfData){
+  while (i < (numOfData)){
     
     switch(qrBitReaderInfo->mode){
       case NUMERIC:       if ((numOfData%3 != 0)&&(numOfData-i == 2))
@@ -183,7 +190,128 @@ char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   
   a = str;
   
-  // qrBitReaderInfo->strData = str;
-  // printf("%s", qrBitReaderInfo->strData);
   return a;
+}
+
+/*@brief    The function to find out the number of count bit of the data
+ *
+ *@param    mode              The mode of the coding
+ *          version           The version of the QR code
+ *          
+ *@retval   countBit          The number of the count bit
+ */ 
+int getNumOfCountBit(int mode, int version){
+  
+  int countBit;
+  
+  if (version <= 9){
+    countBit = countBit1to9[mode];
+  }
+  else if ((version >= 10) && (version <= 26)){
+    countBit = countBit10to26[mode];
+  }
+  else if ((version >= 27) && (version <= 40)){
+    countBit = countBit27to40[mode];
+  }
+  
+  return countBit;
+}
+
+/*@brief    The function to find out the Character Capacities by Version, Mode, and Error Correction
+ *
+ *@param    mode              The mode of the coding
+ *          version           The version of the QR code
+ *          errLevel          The error correction level of the QR code
+ *          
+ *@retval   charCap           The value of character capacity
+ */ 
+int getCharCap(int mode, int version, int errLevel){
+  
+   int charCap;
+  
+  if (mode == NUMERIC){
+    charCap = numericCap[verNerrlv(version,errLevel)];
+  }
+  else if (mode == ALPHANUMERIC){
+    charCap = alphanumericCap[verNerrlv(version,errLevel)];
+  }
+  else if (mode == BYTE){
+    charCap = byteCap[verNerrlv(version,errLevel)];
+  }
+  
+  return charCap;
+}
+
+/*@brief    The function to decode the binary message
+ *
+ *@param    data              The binary string data is extracted from QR code
+ *          mode              The mode of the coding
+ *          offset            The offset of the binary string
+ *          countBit          The number of the count bit
+ *          charCap           The value of character capacity
+ *
+ *@retval   str               The string data from the code
+ */ 
+char *msgDecode(int *data, int mode, int offset, int countBit, int charCap){
+  
+  char *str = malloc(sizeof(char)*charCap);
+  int i = 0, numOfData = 0;
+  int bitPerChar = charBit[mode];
+  str[0] = '\0';
+  for(i = 0; i < countBit; i++){
+    numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit-i-1]);
+  }
+  offset += countBit;
+  
+  i = 0;
+  while (i < (numOfData)){
+    
+    switch(mode){
+      case NUMERIC:       if ((numOfData%3 != 0)&&(numOfData-i == 2))
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 2));
+                          else if ((numOfData%3 != 0)&&(numOfData-i == 1))
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 1));
+                          else
+                            sprintf(str, "%s%s", str, numericConversion(data, offset, 3));
+                          i += 3;
+                          break;
+      case ALPHANUMERIC:  if ((numOfData%2 != 0)&&(i == numOfData - 1))
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, ODD));
+                          else
+                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, EVEN));  
+                          i += 2;
+                          break;
+      case BYTE:          sprintf(str, "%s%s", str, utf8Conversion(data, offset));
+                          // printf("%s", utf8Conversion(data, offset));
+                          // strcat(str,utf8Conversion(data, offset));
+                          i++;
+                          break;
+    }
+    offset += bitPerChar;
+  }
+  printf("%s", str);
+  return str;
+}
+
+/*@brief    The function to decode the binary message
+ *
+ *@param    data              The binary string data is extracted from QR code
+ *          version           The version of the QR code
+ *          errLevel          The error correction level of QR code
+ *
+ *@retval   message           The decoded message of the QR code
+ */ 
+char *dataDecodeMsg(int* data, int version, int errLevel){
+  
+  int mode = getMode(data);
+  int offset = 0;
+  int countBit = getNumOfCountBit(mode, version);
+  int charCap = getCharCap(mode, version, errLevel);
+  char *message;
+
+  offset += 4;
+  message = msgDecode(data, mode, offset, countBit, charCap);
+  
+  // printf("%s", message);
+  return message;
 }

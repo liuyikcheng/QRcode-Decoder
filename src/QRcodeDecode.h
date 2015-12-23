@@ -32,7 +32,7 @@ typedef struct{
   int version;
   Format* format;
   QrBitReaderInfo* qrBitReaderInfo;
-  char msg[1000];
+  char *msg;
 }QrMatrix;
 
 
@@ -43,6 +43,7 @@ int getVersion(int width);
 Format *getFormat(int *qrMatrix, int version);
 Format *formatList(Format* format, int *formatMapTranslation);
 int *unmaskFormatInfo(int* formatMapTranslation);
+int *aligmentFilterVer(int *arr, int version);
 
 
 #endif // QRcodeDecode_H

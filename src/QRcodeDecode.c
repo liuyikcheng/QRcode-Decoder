@@ -16,6 +16,23 @@ int *verAligPattern[] = {apv1,apv2};
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
 int numOfDataCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
 
+
+
+QrMatrix *createQrMatrix(int *qrCode, int width){
+  
+  QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
+  qrMatrix->version = getVersion(width);
+  qrMatrix->format = getFormat(qrCode,width);
+  // qrMatrix->msg = malloc(sizeof(char)*);
+}
+
+QrBitReaderInfo *createQrBitReaderInfo(int *data){
+  
+  QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
+  qrBitReaderInfo->mode = getMode(data);
+  
+}
+
 /*
  *
  *
@@ -29,8 +46,6 @@ QrMatrix *decodeQr(int *qrCode, int width){
   int count = 0;
   int i, j = 0;
   
-  int *a;
-  
   qrMatrix->version = getVersion(width);
   qrMatrix->format = getFormat(qrCode,width);
   
@@ -43,18 +58,17 @@ QrMatrix *decodeQr(int *qrCode, int width){
   qrCode = leftBottomFilter(qrCode, width, width);
   qrCode = timingPatternFilter(qrCode, width, width);
   qrCode = darkModuleFilter(qrCode, width, width);
+  qrCode = aligmentFilterVer(qrCode, qrMatrix->version);
   
   qrBitReaderInfo->data = (int*)dataRetrive(qrCode, width, width);
-
-  // qrBitReaderInfo->strData = malloc(sizeof(char)*100);
-  sprintf(qrMatrix->msg,"%s", dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
+  qrMatrix->msg = dataDecodeMsg((int*)qrBitReaderInfo->data, qrMatrix->version, (int)qrMatrix->format->eccLevel);
+  // printf("%s", qrMatrix->msg);
+  // sprintf(qrMatrix->msg,"%s", dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
   
   // printf("\n%s",dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
   // printf("\n%s",qrMatrix->msg);
   
-  
-  
-  errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
+  // errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
   
   for(i=0;i<7;i++){
     
@@ -212,7 +226,7 @@ int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode)
       
       decimal = decimal + (((int)pow(2,j))*qrBitReaderInfo->data[i+(7-j)]);
     }
-    printf("%d,", decimal);
+    // printf("%d,", decimal);
     errCodeData[numOfErrDatacode] = decimal;
   }
   
@@ -229,14 +243,16 @@ int *aligmentFilterVer(int *arr, int version){
   while(position[i] != -1){
     
     while(position[j] != -1){
-      if(((position[j] > 7)&&(position[i] > 7)) && \
-      ((position[j] <= getWidth(version) - 8)&&(position[i] > 7)) && \
-      ((position[i] <= getWidth(version) - 8)&&(position[j] > 7)) )
-        aligmentFilter(arr, getWidth(version), position[i], position[j] != -1);
+      if(!((position[j] < 7)&&(position[i] < 7)) && \
+      (!(position[j] <= getWidth(version) - 8)&&(position[i] > 7)) && \
+      (!(position[i] <= getWidth(version) - 8)&&(position[j] > 7)) )
+        arr = aligmentFilter(arr, getWidth(version), position[i], position[j]);
+      // printf("(%d, %d)", position[i], position[j]);
       j++;
     }
     i++;
     j = 0;
   }
   
+  return arr;
 }

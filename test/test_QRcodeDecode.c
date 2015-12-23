@@ -56,9 +56,9 @@ void test_version_1_qrcode_return_message_ABC_123456789(void){
 }
 
 //Create a qr code 2d array matrix version 2
-void xtest_example(void)
+void test_version_2_qrcode_return_message_pi_equal_3_dot_14159265358979(void)
 {
-	int qrMatrix [25] [25] =  {{B,B,B,B,B,B,B,w,w,w,B,w,B,w,B,w,w,w,B,B,B,B,B,B,B},
+	int qrCode [25] [25] =  {{B,B,B,B,B,B,B,w,w,w,B,w,B,w,B,w,w,w,B,B,B,B,B,B,B},
                             {B,w,w,w,w,w,B,w,B,w,B,w,w,B,B,B,B,w,B,w,w,w,w,w,B},
                             {B,w,B,B,B,w,B,w,w,w,w,w,B,w,B,B,w,w,B,w,B,B,B,w,B},
                             {B,w,B,B,B,w,B,w,B,B,B,w,B,B,w,w,B,w,B,w,B,B,B,w,B},
@@ -84,8 +84,12 @@ void xtest_example(void)
                             {B,w,w,w,w,w,B,w,B,w,w,B,w,w,B,w,B,B,B,w,w,B,w,w,B},
                             {B,B,B,B,B,B,B,w,B,B,B,B,w,w,w,B,w,w,w,B,w,w,B,B,B}
                             };
+  
+  QrMatrix *qrMatrix;
+  qrMatrix = decodeQr((int*)qrCode, get_Width(qrCode));
                             
-  // getFormatandVersion((int*)qrMatrix, sizeof(qrMatrix));
-                            
-                            
+  TEST_ASSERT_EQUAL(0, strcmp("pi=3.14159265358979", qrMatrix->msg));
+  TEST_ASSERT_EQUAL(2, qrMatrix->version);
+  TEST_ASSERT_EQUAL(2, qrMatrix->format->maskType);
+  TEST_ASSERT_EQUAL(LOW, qrMatrix->format->eccLevel);
 }

@@ -38,7 +38,7 @@ int *dataRetrive(int *arr, int column, int row){
       }
       i--;
     }
-    // printf("\n");
+    printf("\n");
     rowData = rowData - 2;
     if (rowData == 6) // ignore the vertical timing pattern
       rowData --;

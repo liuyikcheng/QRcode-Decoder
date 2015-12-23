@@ -111,8 +111,9 @@ int *aligmentFilter(int *arr, int row, int colMid, int rowMid){
   for(i = colMid-2; i <= colMid+2; i++){
     for(j = colMid-2; j <= colMid+2; j++){
       arr[i*row+j] = -1;
-      printf("%d,", arr[i*row+j]);
+      // printf("%d,", arr[i*row+j]);
     }
   }
+  return arr;
 }
 
