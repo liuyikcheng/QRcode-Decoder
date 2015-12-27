@@ -21,23 +21,23 @@ typedef struct{
 }Format;
 
 typedef struct{
-  int numberOfMsg;
-  Mode mode;
+  int version;
+  Format* format;
   int *data;
   int *errCodeData;
-  int offset;
+  Mode mode;
+  char* msg;
 }QrBitReaderInfo;
 
 typedef struct{
-  int version;
-  Format* format;
   QrBitReaderInfo* qrBitReaderInfo;
+  Mode mode;
   char *msg;
 }QrMatrix;
 
-
-
-
+int *unmaskAndPatternFilter(int *qrCode, int width, QrBitReaderInfo *qrBitReaderInfo);
+QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo);
+QrBitReaderInfo *createQrBitReaderInfo(int *qrCode, int width);
 QrMatrix *decodeQr(int *qrMatrix, int width);
 int getVersion(int width);
 Format *getFormat(int *qrMatrix, int version);

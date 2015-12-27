@@ -14,22 +14,44 @@ int apv2[] = {6,18,-1};
 int *verAligPattern[] = {apv1,apv2};
 
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
-int numOfDataCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
+int numOfECCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
+int numOfDataCodeWordsG1[] = {19,16,13,9,34,28,22,16,55,44,17,13,80,32,24,9,108,43,15,11};
+int numOfBlockG1[] = {1,1,1,1,1,1,1,1,1,1,2,2,1,2,2,4,1,2,2,2};
+int numOfDataCodeWordsG2[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,12}; 
+int numOfBlockG2[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2};
 
 
-
-QrMatrix *createQrMatrix(int *qrCode, int width){
-  
-  QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
-  qrMatrix->version = getVersion(width);
-  qrMatrix->format = getFormat(qrCode,width);
-  // qrMatrix->msg = malloc(sizeof(char)*);
-}
-
-QrBitReaderInfo *createQrBitReaderInfo(int *data){
+/*@brief  To create QrBitReaderInfo structure
+ *
+ *@param  qrCode  The array of the QR code that is going to be decoded
+ *        width   The width of the QR code
+ *        
+ *@retval qrBitReaderInfo   The structure of the info of QR code
+ */
+QrBitReaderInfo *createQrBitReaderInfo(int *qrCode, int width){
   
   QrBitReaderInfo *qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
-  qrBitReaderInfo->mode = getMode(data);
+  qrBitReaderInfo->version = getVersion(width);
+  qrBitReaderInfo->format = getFormat(qrCode,width);
+  
+  return qrBitReaderInfo;
+}
+
+/*@brief  To create QrMatrix structure
+ *
+ *@param  data              The data of the QR code which contains the message and error codes
+ *        qrBitReaderInfo   The structure of the info of QR code
+ *        
+ *@retval qrMatrix          The structure contain all the info of QR code
+ */
+QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo){
+  
+  QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
+  qrMatrix->mode = getMode(data);
+  qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
+  qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
+  
+  return qrMatrix;
   
 }
 
@@ -41,41 +63,35 @@ QrBitReaderInfo *createQrBitReaderInfo(int *data){
 
 QrMatrix *decodeQr(int *qrCode, int width){
   
-  QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
-  QrBitReaderInfo *qrBitReaderInfo = (malloc(sizeof(QrBitReaderInfo)));
-  int count = 0;
-  int i, j = 0;
+  int* data;
   
-  qrMatrix->version = getVersion(width);
-  qrMatrix->format = getFormat(qrCode,width);
+  QrMatrix *qrMatrix;// = malloc(sizeof(QrMatrix));
+  QrBitReaderInfo *qrBitReaderInfo = createQrBitReaderInfo(qrCode, width);// (malloc(sizeof(QrBitReaderInfo)));
   
-  //unmask the data
-  qrCode = unmaskData(qrCode, width, width, qrMatrix->format->maskType);
+  qrCode = unmaskAndPatternFilter(qrCode, width, qrBitReaderInfo);
   
-  //filter the pattern
+  data = (int*)dataRetrive(qrCode, width, width);
+  
+  qrMatrix = createQrMatrix(data, qrBitReaderInfo);
+
+  
+  // errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
+  
+
+  return qrMatrix;
+}
+
+int *unmaskAndPatternFilter(int *qrCode, int width, QrBitReaderInfo *qrBitReaderInfo){
+  
+  qrCode = unmaskData(qrCode, width, width, qrBitReaderInfo->format->maskType);
   qrCode = leftTopFilter(qrCode, width, width);
   qrCode = rightTopFilter(qrCode, width, width);
   qrCode = leftBottomFilter(qrCode, width, width);
   qrCode = timingPatternFilter(qrCode, width, width);
   qrCode = darkModuleFilter(qrCode, width, width);
-  qrCode = aligmentFilterVer(qrCode, qrMatrix->version);
+  qrCode = aligmentFilterVer(qrCode, qrBitReaderInfo->version);
   
-  qrBitReaderInfo->data = (int*)dataRetrive(qrCode, width, width);
-  qrMatrix->msg = dataDecodeMsg((int*)qrBitReaderInfo->data, qrMatrix->version, (int)qrMatrix->format->eccLevel);
-  // printf("%s", qrMatrix->msg);
-  // sprintf(qrMatrix->msg,"%s", dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
-  
-  // printf("\n%s",dataDecode(qrBitReaderInfo->data, qrBitReaderInfo));
-  // printf("\n%s",qrMatrix->msg);
-  
-  // errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
-  
-  for(i=0;i<7;i++){
-    
-  // printf("%d", qrBitReaderInfo->errCodeData[i]);
-  }
-  qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
-  return qrMatrix;
+  return qrCode;
 }
 
 /* @brief   To get the format info of QR code
@@ -255,4 +271,30 @@ int *aligmentFilterVer(int *arr, int version){
   }
   
   return arr;
+}
+
+int dataArrange(int *data, int version, int errLevel){
+  int *arragedData;
+  int numOfBlock = numOfBlockG1[4*(version-1)+errLevel] + numOfBlockG2[4*(version-1)+errLevel];
+  int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, g2 = 0;
+  
+  offset += (8*(numOfBlock-1));
+  if (numOfBlock != 1){
+    
+    while (block < numOfBlockG1[4*(version-1)+errLevel]){
+      
+      while (g1 < numOfDataCodeWordsG1[4*(version-1)+errLevel]){
+        
+        for (x = 0; x < 8; x++){
+          arragedData[i] = data[block+g1*offset+x];
+          i++;
+        }
+        g1++;
+      }
+      
+    }
+  }
+  // if ((numOfBlockG1[4*(version-1)+errLevel] != 1) && (numOfBlockG2[4*(version-1)+errLevel] != 0){
+    
+  // }
 }

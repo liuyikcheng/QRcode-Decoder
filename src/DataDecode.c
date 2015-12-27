@@ -315,3 +315,4 @@ char *dataDecodeMsg(int* data, int version, int errLevel){
   // printf("%s", message);
   return message;
 }
+
