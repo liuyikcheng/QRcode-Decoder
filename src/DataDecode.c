@@ -62,9 +62,8 @@ char *utf8Conversion(int *byte, int offset){
     decimal = decimal + (((int)pow(2,i))*byte[7-i+offset]);
     // printf("%d", byte[7-i+offset]);
   }
-  
+
   str = utf8Char[decimal];
-  // printf("%s", str);
   
   return str;
 }

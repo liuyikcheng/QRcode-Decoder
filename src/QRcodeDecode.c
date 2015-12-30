@@ -16,6 +16,13 @@ int apv4[] = {6,26,-1};
 int apv5[] = {6,30,-1};
 int *verAligPattern[] = {apv1,apv2,apv3,apv4,apv5};
 
+
+//Error correction table
+EccLevel eccLevelTable[] = {MEDIUM, LOW, HIGH, QUARTILE};
+
+//mask type table
+MaskType maskTable[] = {MASK_000,MASK_001,MASK_010,MASK_011,MASK_100,MASK_101,MASK_110,MASK_111};
+
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
 int numOfECCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
 int numOfDataCodeWordsG1[] = {19,16,13,9,34,28,22,16,55,44,17,13,80,32,24,9,108,43,15,11};
@@ -53,7 +60,7 @@ QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo){
   qrMatrix->mode = getMode(data);
   qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
   data = dataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
-  // qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
+  qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
   
   return qrMatrix;
   
@@ -170,7 +177,7 @@ int getVersion(int width){
  */
 Format *formatList(Format* format, int *ftm){
   char formatStr[16];
-  int i, index = 0;
+  int i, index = 0, maskType = 0, eccLevel = 0;
   
   ftm = unmaskFormatInfo(ftm);
   
@@ -178,33 +185,17 @@ Format *formatList(Format* format, int *ftm){
   for (i = 0; i < 15; i++)   // convert int array to string
     index += sprintf(&formatStr[index], "%d", ftm[i]);
     
-  if ((ftm[14] == 0)&&(ftm[13] == 1))
-    format->eccLevel = LOW;
-  else if ((ftm[14] == 0)&&(ftm[13] == 0)) 
-    format->eccLevel = MEDIUM;
-  else if ((ftm[14] == 1)&&(ftm[13] == 1)) 
-    format->eccLevel = QUARTILE;
-  else if ((ftm[14] == 1)&&(ftm[13] == 0)) 
-    format->eccLevel = HIGH;
+  for(i = 0; i < 2; i++ ){
+    eccLevel = eccLevel + (((int)pow(2,i))*ftm[i+13]);
+  }
+  format->eccLevel = eccLevelTable[eccLevel];
   
-  if ((ftm[12] == 0)&&(ftm[11] == 0)&&(ftm[10] == 0))
-    format->maskType = MASK_000;
-  else if ((ftm[12] == 0)&&(ftm[11] == 0)&&(ftm[10] == 1))
-    format->maskType = MASK_001;
-  else if ((ftm[12] == 0)&&(ftm[11] == 1)&&(ftm[10] == 0))
-    format->maskType = MASK_010;
-  else if ((ftm[12] == 0)&&(ftm[11] == 1)&&(ftm[10] == 1))
-    format->maskType = MASK_011;
-  else if ((ftm[12] == 1)&&(ftm[11] == 0)&&(ftm[10] == 0))
-    format->maskType = MASK_100;
-  else if ((ftm[12] == 1)&&(ftm[11] == 0)&&(ftm[10] == 1))
-    format->maskType = MASK_101;
-  else if ((ftm[12] == 1)&&(ftm[11] == 1)&&(ftm[10] == 0))
-    format->maskType = MASK_110;
-  else if ((ftm[12] == 1)&&(ftm[11] == 1)&&(ftm[10] == 1))
-    format->maskType = MASK_111;
+  for(i = 0; i < 3; i++ ){
+    maskType = maskType + (((int)pow(2,i))*ftm[i+10]);
+  }
+  format->maskType = maskTable[maskType];
   
-  // printf("%s", formatStr);
+
   
   return format;
 }
@@ -278,48 +269,61 @@ int *aligmentFilterVer(int *arr, int version){
 }
 
 int *dataArrange(int *data, int version, int errLevel){
-  int *arragedData = malloc(sizeof(int)*1000);
+  int totalCodeword = getTotalCodeword(version, errLevel);
+  int *arragedData = malloc(sizeof(int)*totalCodeword*8);
   int numOfBlock = numOfBlockG1[4*(version-1)+errLevel] + numOfBlockG2[4*(version-1)+errLevel];
   int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, g2 = 0;
   
-  printf("---\n");
+
   offset += (8*(numOfBlock));
-  if (numOfBlock != 1){
-    
+  // if (numOfBlock != 1){
+    // printf("[%d]", numOfBlockG1[4*(version-1)+errLevel]);
     while (block < numOfBlockG1[4*(version-1)+errLevel]){
-      
+      // printf("[%d]", block);
       while (g1 < numOfDataCodeWordsG1[4*(version-1)+errLevel]){
-        
+ 
         for (x = 0; x < 8; x++){
+          // printf("%d,", data[block*8+g1*offset+x]);
           arragedData[i] = data[block*8+g1*offset+x];
-          printf("%d,", data[block*8+g1*offset+x]);
           i++;
         }
         g1++;
       }
+      g1 = 0;
       block++;
     }
-    printf("---\n");
+    // printf("---\n");
+
     while (block < numOfBlock){
       
       while (g2 < numOfDataCodeWordsG2[4*(version-1)+errLevel]){
-        
-        for (x = 0; x < 8; x++){
-          arragedData[i] = data[block*8+g2*offset+x];
-          printf("%d,", data[block*8+(g1+g2)*offset+x]);
-          i++;
+        if (g2 == numOfDataCodeWordsG1[4*(version-1)+errLevel]){
+          for (x = 0; x < 8; x++){
+            arragedData[i] = data[block*8+g2*offset+x];
+            // printf("%d,", data[block*8+(g2)*offset+x-numOfBlockG1[4*(version-1)+errLevel]*8]);
+            i++;
+          }
+        }
+        else{
+          for (x = 0; x < 8; x++){
+            arragedData[i] = data[block*8+g2*offset+x];
+            // printf("%d,", data[block*8+(g2)*offset+x]);
+            i++;
+          }
         }
         g2++;
       }
+      g2 = 0;
       block++;
     }
     
-  }
+  // }
   
   return arragedData;
 }
 
 int getTotalCodeword(int version, int errLevel){
-
-  return  numOfBlockG1[4*(version-1)+errLevel]*numOfDataCodeWordsG1[4*(version-1)+errLevel]+numOfBlockG2[4*(version-1)+errLevel]*numOfDataCodeWordsG2[4*(version-1)+errLevel];
+  
+  return  numOfBlockG1[4*(version-1)+errLevel]*numOfDataCodeWordsG1[4*(version-1)+errLevel] \
+          +numOfBlockG2[4*(version-1)+errLevel]*numOfDataCodeWordsG2[4*(version-1)+errLevel];
 }
