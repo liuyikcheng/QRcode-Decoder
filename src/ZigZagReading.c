@@ -32,7 +32,7 @@ int *dataRetrive(int *arr, int column, int row){
         
         if ((arr[i*row+j] >= 0)&&(i >= 0)&&(j >= 0)){
           data[k] = arr[i*row+j];
-          // printf("%d,", data[k]);
+          printf("%d,", data[k]);
           k++;
         }
       }
@@ -51,7 +51,7 @@ int *dataRetrive(int *arr, int column, int row){
         // printf("(%d,%d) ", j, i);
         if ((arr[i*row+j] >= 0)&&(i >= 0)&&(j >= 0)){
           data[k] = arr[i*row+j];
-          // printf("%d,", data[k]);
+          printf("%d,", data[k]);
           k++;
         }
       }

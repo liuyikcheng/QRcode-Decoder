@@ -11,7 +11,10 @@
 
 int apv1[] = {-1};
 int apv2[] = {6,18,-1};
-int *verAligPattern[] = {apv1,apv2};
+int apv3[] = {6,22,-1};
+int apv4[] = {6,26,-1};
+int apv5[] = {6,30,-1};
+int *verAligPattern[] = {apv1,apv2,apv3,apv4,apv5};
 
 // Number of Error Correction Code Words per block according to version and ECC level for version 1 to 5
 int numOfECCodewords[] = {7,10,13,17,10,16,22,28,15,26,18,22,20,18,26,16,26,24,18,22};
@@ -49,7 +52,8 @@ QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo){
   QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
   qrMatrix->mode = getMode(data);
   qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
-  qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
+  data = dataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
+  // qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
   
   return qrMatrix;
   
@@ -65,8 +69,8 @@ QrMatrix *decodeQr(int *qrCode, int width){
   
   int* data;
   
-  QrMatrix *qrMatrix;// = malloc(sizeof(QrMatrix));
-  QrBitReaderInfo *qrBitReaderInfo = createQrBitReaderInfo(qrCode, width);// (malloc(sizeof(QrBitReaderInfo)));
+  QrMatrix *qrMatrix;
+  QrBitReaderInfo *qrBitReaderInfo = createQrBitReaderInfo(qrCode, width);
   
   qrCode = unmaskAndPatternFilter(qrCode, width, qrBitReaderInfo);
   
@@ -273,12 +277,13 @@ int *aligmentFilterVer(int *arr, int version){
   return arr;
 }
 
-int dataArrange(int *data, int version, int errLevel){
-  int *arragedData;
+int *dataArrange(int *data, int version, int errLevel){
+  int *arragedData = malloc(sizeof(int)*1000);
   int numOfBlock = numOfBlockG1[4*(version-1)+errLevel] + numOfBlockG2[4*(version-1)+errLevel];
   int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, g2 = 0;
   
-  offset += (8*(numOfBlock-1));
+  printf("---\n");
+  offset += (8*(numOfBlock));
   if (numOfBlock != 1){
     
     while (block < numOfBlockG1[4*(version-1)+errLevel]){
@@ -286,15 +291,35 @@ int dataArrange(int *data, int version, int errLevel){
       while (g1 < numOfDataCodeWordsG1[4*(version-1)+errLevel]){
         
         for (x = 0; x < 8; x++){
-          arragedData[i] = data[block+g1*offset+x];
+          arragedData[i] = data[block*8+g1*offset+x];
+          printf("%d,", data[block*8+g1*offset+x]);
           i++;
         }
         g1++;
       }
-      
+      block++;
     }
-  }
-  // if ((numOfBlockG1[4*(version-1)+errLevel] != 1) && (numOfBlockG2[4*(version-1)+errLevel] != 0){
+    printf("---\n");
+    while (block < numOfBlock){
+      
+      while (g2 < numOfDataCodeWordsG2[4*(version-1)+errLevel]){
+        
+        for (x = 0; x < 8; x++){
+          arragedData[i] = data[block*8+g2*offset+x];
+          printf("%d,", data[block*8+(g1+g2)*offset+x]);
+          i++;
+        }
+        g2++;
+      }
+      block++;
+    }
     
-  // }
+  }
+  
+  return arragedData;
+}
+
+int getTotalCodeword(int version, int errLevel){
+
+  return  numOfBlockG1[4*(version-1)+errLevel]*numOfDataCodeWordsG1[4*(version-1)+errLevel]+numOfBlockG2[4*(version-1)+errLevel]*numOfDataCodeWordsG2[4*(version-1)+errLevel];
 }

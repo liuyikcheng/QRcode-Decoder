@@ -44,6 +44,7 @@ Format *getFormat(int *qrMatrix, int version);
 Format *formatList(Format* format, int *formatMapTranslation);
 int *unmaskFormatInfo(int* formatMapTranslation);
 int *aligmentFilterVer(int *arr, int version);
-
+int *dataArrange(int *data, int version, int errLevel);
+int getTotalCodeword(int version, int errLevel);
 
 #endif // QRcodeDecode_H

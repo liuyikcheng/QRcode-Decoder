@@ -22,7 +22,7 @@ void tearDown(void)
 }
 
 //QR code contains message "ABC 123456789" Byte mode, error correction level is Low
-void test_version_1_qrcode_return_message_ABC_123456789(void){
+void xtest_version_1_qrcode_return_message_ABC_123456789(void){
   int qrCode [21] [21]  =    {{B,B,B,B,B,B,B,w,w,B,w,B,B,w,B,B,B,B,B,B,B},
                               {B,w,w,w,w,w,B,w,B,B,w,B,w,w,B,w,w,w,w,w,B},
                               {B,w,B,B,B,w,B,w,B,B,w,w,B,w,B,w,B,B,B,w,B},
@@ -56,7 +56,7 @@ void test_version_1_qrcode_return_message_ABC_123456789(void){
 }
 
 //Create a qr code 2d array matrix version 2
-void test_version_2_qrcode_return_message_pi_equal_3_dot_14159265358979(void)
+void xtest_version_2_qrcode_return_message_pi_equal_3_dot_14159265358979(void)
 {
 	int qrCode [25] [25] =  {{B,B,B,B,B,B,B,w,w,w,B,w,B,w,B,w,w,w,B,B,B,B,B,B,B},
                             {B,w,w,w,w,w,B,w,B,w,B,w,w,B,B,B,B,w,B,w,w,w,w,w,B},
@@ -133,4 +133,29 @@ void test_version_5_qrcode_with_Byte_mode_and_Q_level_ecc_return_message_Dancing
                          {B,w,w,w,w,w,B,w,B,B,w,B,w,w,w,w,w,w,B,w,w,B,B,B,w,B,w,B,B,w,B,B,w,w,w,w,B},
                          {B,B,B,B,B,B,B,w,w,w,w,B,w,w,B,B,B,w,B,w,B,B,w,B,B,w,B,w,w,w,B,w,w,B,B,B,B}
                          };
+                         
+  QrMatrix *qrMatrix;
+  qrMatrix = decodeQr((int*)qrCode, get_Width(qrCode));
+  
+  // TEST_ASSERT_EQUAL(5, qrMatrix->qrBitReaderInfo->version);
+  // TEST_ASSERT_EQUAL(2, qrMatrix->qrBitReaderInfo->format->maskType);
+  // TEST_ASSERT_EQUAL(QUARTILE, qrMatrix->qrBitReaderInfo->format->eccLevel);
+}
+
+void test_getTotalCodeword_with_version_1_and_EC_level_Low_return_19(void){
+  int totalNumOfCodeword = getTotalCodeword(1, LOW);
+  
+  TEST_ASSERT_EQUAL(19, totalNumOfCodeword);
+}
+
+void test_getTotalCodeword_with_version_3_and_EC_level_QUARTILE_return_34(void){
+  int totalNumOfCodeword = getTotalCodeword(3, QUARTILE);
+  
+  TEST_ASSERT_EQUAL(34, totalNumOfCodeword);
+}
+
+void test_getTotalCodeword_with_version_5_and_EC_level_QUARTILE_return_62(void){
+  int totalNumOfCodeword = getTotalCodeword(5, QUARTILE);
+  
+  TEST_ASSERT_EQUAL(62, totalNumOfCodeword);
 }
