@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #define   ftm   formatMapTranslation
 #define   getWidth(x)   x*4+17          // x = version of QR code
@@ -55,23 +56,27 @@ QrBitReaderInfo *createQrBitReaderInfo(int *qrCode, int width){
  *@retval qrMatrix          The structure contain all the info of QR code
  */
 QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo){
-  
+  unsigned char codeword[256];
   QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
   qrMatrix->mode = getMode(data);
   qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
+  qrMatrix->errCodeData = errCodeDataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
   data = dataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
   qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
+  
+  placeErrorCodeword(qrMatrix->msg, qrMatrix->errCodeData, codeword);
   
   return qrMatrix;
   
 }
 
-/*
+/*@brief  To decode the QR code
  *
+ *@param  qrCode        The integer array of the QR code
+ *        width         The width of the QR code
  *
- *
+ *@retval qrMatrix      The structure contain all the info of QR code
  */
-
 QrMatrix *decodeQr(int *qrCode, int width){
   
   int* data;
@@ -92,6 +97,14 @@ QrMatrix *decodeQr(int *qrCode, int width){
   return qrMatrix;
 }
 
+/*@brief  To unmask and filter the QR code
+ *
+ *@param  qrCode            The integer array of the QR code
+ *        width             The width of the QR code
+ *        qrBitReaderInfo   The structure of the info of QR code
+ *
+ *@retval qrCode            The unmasked and filtered integer array of the QR code
+ */
 int *unmaskAndPatternFilter(int *qrCode, int width, QrBitReaderInfo *qrBitReaderInfo){
   
   qrCode = unmaskData(qrCode, width, width, qrBitReaderInfo->format->maskType);
@@ -276,7 +289,6 @@ int *dataArrange(int *data, int version, int errLevel){
   
 
   offset += (8*(numOfBlock));
-  // if (numOfBlock != 1){
     // printf("[%d]", numOfBlockG1[4*(version-1)+errLevel]);
     while (block < numOfBlockG1[4*(version-1)+errLevel]){
       // printf("[%d]", block);
@@ -317,9 +329,70 @@ int *dataArrange(int *data, int version, int errLevel){
       block++;
     }
     
-  // }
   
   return arragedData;
+}
+
+int *errCodeDataArrange(int *data, int version, int errLevel){
+  int totalCodeword = getTotalCodeword(version, errLevel);
+  int eccPerBlock = numOfECCodewords[4*(version-1)+errLevel];
+  int numOfBlock = numOfBlockG1[4*(version-1)+errLevel] + numOfBlockG2[4*(version-1)+errLevel];
+  int totalEccBlock = eccPerBlock*numOfBlock;
+  int *eccData = malloc(sizeof(int)*eccPerBlock*8*numOfBlock);
+  int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, decimal = 0;
+  
+  // while(data[k] != -1){
+    // printf("%d\n", eccPerBlock);
+    // k++;
+  // }
+
+  offset += (8*(numOfBlock));
+  
+
+    while (block < numOfBlock){
+      while (g1 < eccPerBlock){
+      // printf("[%d]", g1);
+ 
+        for (x = 0; x < 8; x++){
+          decimal = decimal + (((int)pow(2,(7-x)))*data[block*8+g1*offset+x+totalCodeword*8]);
+          // printf("%d,", data[block*8+g1*offset+x+totalCodeword*8]);
+          // eccData[i] = data[block*8+g1*offset+x+totalCodeword*8];
+          i++;
+        }
+        // printf("%d,",decimal);
+        eccData[k] = decimal;
+        decimal = 0;
+        g1++;
+        k++;
+      }
+      g1 = 0;
+      block++;
+    }
+    
+    while(j<eccPerBlock){
+      // printf("%d,", eccData[j]);
+      j++;
+    }
+    
+  
+  return eccData;
+}
+
+void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[]){
+  int i;
+  char lol[] = "asdf";
+  
+  // for(i = 0; i<19 ; i++){
+    // lol[i] = msg[i];
+  // }
+  
+  for (i = 0; i < 10; i++) {
+    // lol[i+19] = errorCodeword[i];
+    
+  }
+
+  printf("%s", lol);
+  
 }
 
 int getTotalCodeword(int version, int errLevel){

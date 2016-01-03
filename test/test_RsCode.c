@@ -87,20 +87,43 @@ byte_erasure (int loc, unsigned char dst[], int cwsize, int erasures[])
 
 
 void test_rsCode2(void){
-  // char codeword[] = "ABC 123456789";
+  unsigned char msg[]= "pi=3.14159265358979";
+  unsigned char codeword[256];
+  int parityBit[] = {17,13,204,195,220,98,89,28,153,127};
+  int k = 0, i = 0;
+  int erasures[16];
+  int nerasures = 0;
   
-  // byte_err(0x35, 3, codeword);
-  char codeword[256];
-  // int erasures[] = {0, 7, 190, 217, 202, 136, 167};
-  // int nerasures = 0;
-  // erasures[nerasures++] = ML-17;
-  // erasures[nerasures++] = ML-19;
-  // #define ML (sizeof (codeword) + NPAR)
-  // decode_data(codeword, ML);
-  // correct_errors_erasures (codeword, 
-			     // ML,
-			     // nerasures, 
-			     // erasures);
-           
-           // printf("%s", codeword);
+  for(i=0;i<=19;i++){
+    codeword[i] = msg[i];
+  }
+  
+  printf("codeword = %s", codeword);
+  
+ codeword[19] = 17;
+ codeword[20] = 13;
+ codeword[21] = 204;
+ codeword[22] = 195;
+ codeword[23] = 220;
+ codeword[24] = 98;
+ codeword[25] = 89;
+ codeword[26] = 28;
+ codeword[27] = 153;
+ codeword[28] = 127;
+ 
+  printf("[%d]", codeword[28]);
+  
+  byte_err(0x35, 5, codeword);
+  printf("Error codeword = %s", codeword);
+    // erasures[nerasures++] = ML-3;
+  decode_data(codeword, (sizeof (msg) + NPAR));
+  
+  if (check_syndrome () != 0) {
+    correct_errors_erasures (codeword, 
+			     ML,
+			     nerasures, 
+			     erasures);
+ 
+    printf("Corrected codeword: \"%s\"\n", codeword);
+  }
 }

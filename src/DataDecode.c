@@ -288,7 +288,7 @@ char *msgDecode(int *data, int mode, int offset, int countBit, int charCap){
     }
     offset += bitPerChar;
   }
-  printf("%s", str);
+  // printf("%s", str);
   return str;
 }
 

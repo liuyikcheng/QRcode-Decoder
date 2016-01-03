@@ -24,7 +24,6 @@ typedef struct{
   int version;
   Format* format;
   int *data;
-  int *errCodeData;
   Mode mode;
   char* msg;
 }QrBitReaderInfo;
@@ -32,7 +31,9 @@ typedef struct{
 typedef struct{
   QrBitReaderInfo* qrBitReaderInfo;
   Mode mode;
+  int numOfChar;
   char *msg;
+  int *errCodeData;
 }QrMatrix;
 
 int *unmaskAndPatternFilter(int *qrCode, int width, QrBitReaderInfo *qrBitReaderInfo);
@@ -46,5 +47,8 @@ int *unmaskFormatInfo(int* formatMapTranslation);
 int *aligmentFilterVer(int *arr, int version);
 int *dataArrange(int *data, int version, int errLevel);
 int getTotalCodeword(int version, int errLevel);
+int *errCodeDataArrange(int *data, int version, int errLevel);
+// void placeErrorCodeword(char *msg, int* errorCodeword);
+void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[]);
 
 #endif // QRcodeDecode_H
