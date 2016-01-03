@@ -149,32 +149,32 @@ Mode getMode(int *data){
  *@retval   a                 message of the decoded data
  */ 
 char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
-  int i = 0, numOfData = 0, offset = 0;
+  int i = 0, numOfChar = 0, offset = 0;
   char str[1000] = "";
   char *a;
   
   qrBitReaderInfo->mode = getMode(data);
   offset += 4;
   
-  for(i = 0; i < countBit1to9[(int)qrBitReaderInfo->mode]; i++){
-    numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit1to9[(int)qrBitReaderInfo->mode]-i-1]);
-  }
+  // numOfChar = getNumOfChar(data, (int)qrBitReaderInfo->mode, offset, c);
+  printf("....[%d]", numOfChar);
+
   offset += countBit1to9[(int)qrBitReaderInfo->mode];
 
   i = 0;
   
-  while (i < (numOfData)){
+  while (i < (numOfChar)){
     
     switch(qrBitReaderInfo->mode){
-      case NUMERIC:       if ((numOfData%3 != 0)&&(numOfData-i == 2))
+      case NUMERIC:       if ((numOfChar%3 != 0)&&(numOfChar-i == 2))
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 2));
-                          else if ((numOfData%3 != 0)&&(numOfData-i == 1))
+                          else if ((numOfChar%3 != 0)&&(numOfChar-i == 1))
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 1));
                           else
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 3));
                           i += 3;
                           break;
-      case ALPHANUMERIC:  if ((numOfData%2 != 0)&&(i == numOfData - 1))
+      case ALPHANUMERIC:  if ((numOfChar%2 != 0)&&(i == numOfChar - 1))
                             sprintf(str, "%s%s", str, alpnumConversion(data, offset, ODD));
                           else
                             sprintf(str, "%s%s", str, alpnumConversion(data, offset, EVEN));  
@@ -190,6 +190,17 @@ char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
   a = str;
   
   return a;
+}
+
+int getNumOfChar(int *data, int mode, int offset, int countBit){
+  int i, numOfChar = 0;
+  
+   for(i = 0; i < countBit; i++){
+    numOfChar = numOfChar + (((int)pow(2,i))*data[offset+countBit-i-1]);
+    // printf("%d,", data[offset+countBit-i-1]);
+  }
+  
+  return numOfChar;
 }
 
 /*@brief    The function to find out the number of count bit of the data
@@ -254,27 +265,28 @@ int getCharCap(int mode, int version, int errLevel){
 char *msgDecode(int *data, int mode, int offset, int countBit, int charCap){
   
   char *str = malloc(sizeof(char)*charCap);
-  int i = 0, numOfData = 0;
+  int i = 0, numOfChar = 0;
   int bitPerChar = charBit[mode];
   str[0] = '\0';
-  for(i = 0; i < countBit; i++){
-    numOfData = numOfData + (((int)pow(2,i))*data[offset+countBit-i-1]);
-  }
+  
+  numOfChar = getNumOfChar(data, mode, offset, countBit);
+
+
   offset += countBit;
   
   i = 0;
-  while (i < (numOfData)){
+  while (i < (numOfChar)){
     
     switch(mode){
-      case NUMERIC:       if ((numOfData%3 != 0)&&(numOfData-i == 2))
+      case NUMERIC:       if ((numOfChar%3 != 0)&&(numOfChar-i == 2))
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 2));
-                          else if ((numOfData%3 != 0)&&(numOfData-i == 1))
+                          else if ((numOfChar%3 != 0)&&(numOfChar-i == 1))
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 1));
                           else
                             sprintf(str, "%s%s", str, numericConversion(data, offset, 3));
                           i += 3;
                           break;
-      case ALPHANUMERIC:  if ((numOfData%2 != 0)&&(i == numOfData - 1))
+      case ALPHANUMERIC:  if ((numOfChar%2 != 0)&&(i == numOfChar - 1))
                             sprintf(str, "%s%s", str, alpnumConversion(data, offset, ODD));
                           else
                             sprintf(str, "%s%s", str, alpnumConversion(data, offset, EVEN));  
@@ -292,26 +304,5 @@ char *msgDecode(int *data, int mode, int offset, int countBit, int charCap){
   return str;
 }
 
-/*@brief    The function to decode the binary message
- *
- *@param    data              The binary string data is extracted from QR code
- *          version           The version of the QR code
- *          errLevel          The error correction level of QR code
- *
- *@retval   message           The decoded message of the QR code
- */ 
-char *dataDecodeMsg(int* data, int version, int errLevel){
-  
-  int mode = getMode(data);
-  int offset = 0;
-  int countBit = getNumOfCountBit(mode, version);
-  int charCap = getCharCap(mode, version, errLevel);
-  char *message;
 
-  offset += 4;
-  message = msgDecode(data, mode, offset, countBit, charCap);
-  
-  // printf("%s", message);
-  return message;
-}
 

@@ -25,13 +25,13 @@ typedef struct{
   Format* format;
   int *data;
   Mode mode;
+  int numOfChar;
   char* msg;
 }QrBitReaderInfo;
 
 typedef struct{
   QrBitReaderInfo* qrBitReaderInfo;
   Mode mode;
-  int numOfChar;
   char *msg;
   int *errCodeData;
 }QrMatrix;
@@ -49,6 +49,7 @@ int *dataArrange(int *data, int version, int errLevel);
 int getTotalCodeword(int version, int errLevel);
 int *errCodeDataArrange(int *data, int version, int errLevel);
 // void placeErrorCodeword(char *msg, int* errorCodeword);
-void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[]);
+void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[],int numOfChar, int numOfECC);
+char *dataDecodeMsg(int* data, int version, int errLevel, int *numOfChar);
 
 #endif // QRcodeDecode_H

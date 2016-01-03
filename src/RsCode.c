@@ -68,7 +68,7 @@ print_parity (void)
   int i;
   printf("Parity Bytes: ");
   for (i = 0; i < NPAR; i++) 
-    printf("[%d]:%x, ",i,pBytes[i]);
+    printf("[%d]:%d, \n",i,pBytes[i]);
   printf("\n");
 }
 
@@ -93,6 +93,7 @@ build_codeword (unsigned char msg[], int nbytes, unsigned char dst[])
 	
   for (i = 0; i < NPAR; i++) {
     dst[i+nbytes] = pBytes[NPAR-1-i];
+    // printf("\n errorcode: %d", pBytes[NPAR-1-i] );
   }
 }
 	

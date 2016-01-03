@@ -259,3 +259,30 @@ void test_getTotalCodeword_with_version_5_and_EC_level_QUARTILE_return_62(void){
   
   TEST_ASSERT_EQUAL(62, totalNumOfCodeword);
 }
+
+void test_QrBitReaderInfo_with_Alphanumeric_mode_and_Hello_world_message_data(void){
+  int data[] = {0,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,1,1,0,
+                1,0,0,0,1,0,1,1,1,0,0,1,0,1,1,0,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,0,1,1,0,1,
+                1,1,1,1,1};
+                
+  char *message;
+  int numOfChar;
+
+  message = dataDecodeMsg((int*)data, 1, L, &numOfChar);
+  
+  // printf("%s", message);
+  
+  TEST_ASSERT_EQUAL(0, strcmp("HELLO WORLD",message));
+
+}
+
+void test_QrBitReaderInfo_with_numeric_mode_and_8675309_message_data(void){
+  int data[] = {0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,0,0,0,1,1,1,0,0,0,0,1,0,0,1,0,1,0,0,1};
+  char *message;
+  int numOfChar;
+  message = dataDecodeMsg((int*)data, 1, L, &numOfChar);
+
+  
+  TEST_ASSERT_EQUAL(0, strcmp("8675309",message));
+
+}

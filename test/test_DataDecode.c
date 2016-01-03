@@ -126,7 +126,7 @@ void test_getCharCap_with_version_18_and_ALPHANUMERIC_mode_and_errLevel_L_should
   TEST_ASSERT_EQUAL(1046, charCap);
 }
 
-void test_QrBitReaderInfo_with_version1_Byte_mode_and_Hello_message_data(void){
+void test_Qr_with_version1_Byte_mode_and_Hello_message_data(void){
   int data[] = {0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
   char *message;
   
@@ -136,7 +136,7 @@ void test_QrBitReaderInfo_with_version1_Byte_mode_and_Hello_message_data(void){
 
 }
 
-void test_QrBitReaderInfo_with_Byte_mode_and_Hello_message_data(void){
+void test_Qr_with_mode_and_Hello_message_data(void){
   int data[] = {0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
   char *message;
   QrBitReaderInfo* qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
@@ -146,28 +146,3 @@ void test_QrBitReaderInfo_with_Byte_mode_and_Hello_message_data(void){
 
 }
 
-void test_QrBitReaderInfo_with_Alphanumeric_mode_and_Hello_world_message_data(void){
-  int data[] = {0,0,1,0,0,0,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,1,1,0,
-                1,0,0,0,1,0,1,1,1,0,0,1,0,1,1,0,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,0,1,1,0,1,
-                1,1,1,1,1};
-                
-  char *message;
-
-  message = dataDecodeMsg((int*)data, 1, L);
-  
-  // printf("%s", message);
-  
-  TEST_ASSERT_EQUAL(0, strcmp("HELLO WORLD",message));
-
-}
-
-void test_QrBitReaderInfo_with_numeric_mode_and_8675309_message_data(void){
-  int data[] = {0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,1,1,0,0,0,1,1,1,0,0,0,0,1,0,0,1,0,1,0,0,1};
-  char *message;
-  
-  message = dataDecodeMsg((int*)data, 1, L);
-
-  
-  TEST_ASSERT_EQUAL(0, strcmp("8675309",message));
-
-}

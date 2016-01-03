@@ -57,14 +57,17 @@ QrBitReaderInfo *createQrBitReaderInfo(int *qrCode, int width){
  */
 QrMatrix *createQrMatrix(int *data, QrBitReaderInfo *qrBitReaderInfo){
   unsigned char codeword[256];
+  // unsigned char *codeword = malloc(sizeof(char)*256);
+  int numOfChar;
   QrMatrix *qrMatrix = malloc(sizeof(QrMatrix));
   qrMatrix->mode = getMode(data);
   qrMatrix->qrBitReaderInfo = qrBitReaderInfo;
   qrMatrix->errCodeData = errCodeDataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
   data = dataArrange(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
-  qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel);
-  
-  placeErrorCodeword(qrMatrix->msg, qrMatrix->errCodeData, codeword);
+  qrMatrix->msg = dataDecodeMsg(data, qrBitReaderInfo->version, (int)qrBitReaderInfo->format->eccLevel, &(qrBitReaderInfo->numOfChar));
+  // printf("[%d]", qrBitReaderInfo->numOfChar);
+  placeErrorCodeword(qrMatrix->msg, qrMatrix->errCodeData, codeword, qrBitReaderInfo->numOfChar, \
+  numOfECCodewords[4*(qrBitReaderInfo->version-1)+qrBitReaderInfo->format->eccLevel]);
   
   return qrMatrix;
   
@@ -285,7 +288,7 @@ int *dataArrange(int *data, int version, int errLevel){
   int totalCodeword = getTotalCodeword(version, errLevel);
   int *arragedData = malloc(sizeof(int)*totalCodeword*8);
   int numOfBlock = numOfBlockG1[4*(version-1)+errLevel] + numOfBlockG2[4*(version-1)+errLevel];
-  int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, g2 = 0;
+  int i = 0, j = 0,k = 0, x = 0, block = 0, offset = 0, g1 = 0, g2 = 0, number = 0;
   
 
   offset += (8*(numOfBlock));
@@ -297,8 +300,11 @@ int *dataArrange(int *data, int version, int errLevel){
         for (x = 0; x < 8; x++){
           // printf("%d,", data[block*8+g1*offset+x]);
           arragedData[i] = data[block*8+g1*offset+x];
+          number = number + (((int)pow(2,x))*data[block*8+g1*offset+7-x]);
           i++;
         }
+        printf("%d, ", number );
+        number = 0;
         g1++;
       }
       g1 = 0;
@@ -378,25 +384,53 @@ int *errCodeDataArrange(int *data, int version, int errLevel){
   return eccData;
 }
 
-void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[]){
+void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[], int numOfChar, int numOfECC){
   int i;
-  char lol[] = "asdf";
   
-  // for(i = 0; i<19 ; i++){
-    // lol[i] = msg[i];
-  // }
-  
-  for (i = 0; i < 10; i++) {
-    // lol[i+19] = errorCodeword[i];
+  // printf("..%d", sizeof(msg));
+  // char lol[] = "asdf";
     
+  for (i = 0; i < numOfChar; i++) {
+    codeword[i] = msg[i];
+    printf("%c", msg[i]);
+  }
+    
+  for (i = 0; i < numOfECC; i++) {
+    codeword[i+numOfChar] = errorCodeword[i];
+    // printf("%d,", i);
   }
 
-  printf("%s", lol);
-  
+  // printf("(%s)", codeword);
+  // printf("(%d)", codeword[numOfChar]);
 }
 
 int getTotalCodeword(int version, int errLevel){
   
   return  numOfBlockG1[4*(version-1)+errLevel]*numOfDataCodeWordsG1[4*(version-1)+errLevel] \
           +numOfBlockG2[4*(version-1)+errLevel]*numOfDataCodeWordsG2[4*(version-1)+errLevel];
+}
+
+/*@brief    The function to decode the binary message
+ *
+ *@param    data              The binary string data is extracted from QR code
+ *          version           The version of the QR code
+ *          errLevel          The error correction level of QR code
+ *
+ *@retval   message           The decoded message of the QR code
+ */ 
+char *dataDecodeMsg(int* data, int version, int errLevel, int *numOfChar){
+  
+  int mode = getMode(data);
+  int offset = 0;
+  int countBit = getNumOfCountBit(mode, version);
+  int charCap = getCharCap(mode, version, errLevel);
+  char *message;
+  int num;
+  offset += 4;
+  *numOfChar = getNumOfChar(data, mode, offset, countBit);
+
+  message = msgDecode(data, mode, offset, countBit, charCap);
+  
+  // printf("%s", message);
+  return message;
 }
