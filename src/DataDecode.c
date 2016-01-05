@@ -141,57 +141,6 @@ Mode getMode(int *data){
   return mode;
 }
 
-/*@brief    The function to decode the binary string data and store the information to qrBitReaderInfo
- *
- *@param    data              The binary string data to decode
- *          qrBitReaderInfo   The information of the QR code message
- *          
- *@retval   a                 message of the decoded data
- */ 
-char *dataDecode(int *data, QrBitReaderInfo *qrBitReaderInfo){
-  int i = 0, numOfChar = 0, offset = 0;
-  char str[1000] = "";
-  char *a;
-  
-  qrBitReaderInfo->mode = getMode(data);
-  offset += 4;
-  
-  // numOfChar = getNumOfChar(data, (int)qrBitReaderInfo->mode, offset, c);
-  printf("....[%d]", numOfChar);
-
-  offset += countBit1to9[(int)qrBitReaderInfo->mode];
-
-  i = 0;
-  
-  while (i < (numOfChar)){
-    
-    switch(qrBitReaderInfo->mode){
-      case NUMERIC:       if ((numOfChar%3 != 0)&&(numOfChar-i == 2))
-                            sprintf(str, "%s%s", str, numericConversion(data, offset, 2));
-                          else if ((numOfChar%3 != 0)&&(numOfChar-i == 1))
-                            sprintf(str, "%s%s", str, numericConversion(data, offset, 1));
-                          else
-                            sprintf(str, "%s%s", str, numericConversion(data, offset, 3));
-                          i += 3;
-                          break;
-      case ALPHANUMERIC:  if ((numOfChar%2 != 0)&&(i == numOfChar - 1))
-                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, ODD));
-                          else
-                            sprintf(str, "%s%s", str, alpnumConversion(data, offset, EVEN));  
-                          i += 2;
-                          break;
-      case BYTE:          sprintf(str, "%s%s", str, utf8Conversion(data, offset));
-                          i++;
-                          break;
-    }
-    offset += (charBit[(int)qrBitReaderInfo->mode]);
-  }
-  
-  a = str;
-  
-  return a;
-}
-
 int getNumOfChar(int *data, int mode, int offset, int countBit){
   int i, numOfChar = 0;
   

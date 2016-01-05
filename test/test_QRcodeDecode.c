@@ -21,8 +21,9 @@ void tearDown(void)
 {
 }
 
+
 //QR code contains message "ABC 123456789" Byte mode, error correction level is Low
-void xtest_version_1_qrcode_return_message_ABC_123456789(void){
+void test_version_1_qrcode_return_message_ABC_123456789(void){
   int qrCode [21] [21]  =    {{B,B,B,B,B,B,B,w,w,B,w,B,B,w,B,B,B,B,B,B,B},
                               {B,w,w,w,w,w,B,w,B,B,w,B,w,w,B,w,w,w,w,w,B},
                               {B,w,B,B,B,w,B,w,B,B,w,w,B,w,B,w,B,B,B,w,B},
@@ -94,7 +95,7 @@ void test_version_2_qrcode_return_message_pi_equal_3_dot_14159265358979(void)
   TEST_ASSERT_EQUAL(LOW, qrMatrix->qrBitReaderInfo->format->eccLevel);
 }
 
-void xtest_version_5_qrcode_with_Byte_mode_and_Q_level_ecc_return_message_Dancing_in_the_pale_moonelight_dot(void){
+void test_version_5_qrcode_with_Byte_mode_and_Q_level_ecc_return_message_Dancing_in_the_pale_moonelight_dot(void){
   int qrCode [37][37] = {{B,B,B,B,B,B,B,w,B,w,w,B,w,w,w,B,w,w,B,w,w,B,w,w,w,B,w,w,B,w,B,B,B,B,B,B,B},
                          {B,w,w,w,w,w,B,w,w,B,B,w,w,B,w,w,w,B,B,w,B,B,B,B,B,B,B,B,B,w,B,w,w,w,w,w,B},
                          {B,w,B,B,B,w,B,w,w,B,B,B,B,w,B,B,B,w,B,w,B,B,w,B,w,B,w,w,B,w,B,w,B,B,B,w,B},

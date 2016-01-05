@@ -130,19 +130,10 @@ void test_Qr_with_version1_Byte_mode_and_Hello_message_data(void){
   int data[] = {0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
   char *message;
   
-  message = msgDecode((int*)data, BYTE, 0, 8, 1);
+  message = msgDecode((int*)data, BYTE, 0, 8, 17);
     
   TEST_ASSERT_EQUAL(0, strcmp("Hello",message));
 
 }
 
-void test_Qr_with_mode_and_Hello_message_data(void){
-  int data[] = {0,1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1};
-  char *message;
-  QrBitReaderInfo* qrBitReaderInfo = malloc(sizeof(QrBitReaderInfo));
-  message = dataDecode((int*)data, qrBitReaderInfo);
-    
-  TEST_ASSERT_EQUAL(0, strcmp("Hello",message));
-
-}
 
