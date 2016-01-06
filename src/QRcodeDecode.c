@@ -92,9 +92,6 @@ QrMatrix *decodeQr(int *qrCode, int width){
   data = (int*)dataRetrive(qrCode, width, width);
   
   qrMatrix = createQrMatrix(data, qrBitReaderInfo);
-
-  
-  // errCorrectionDecode(qrBitReaderInfo, numOfDataCodewords[4*((qrMatrix->version)-1)+(int)qrMatrix->format->eccLevel]);
   
 
   return qrMatrix;
@@ -121,10 +118,12 @@ int *unmaskAndPatternFilter(int *qrCode, int width, QrBitReaderInfo *qrBitReader
   return qrCode;
 }
 
-/* @brief   To get the format info of QR code
+/*@brief    To get the format info of QR code
  *
+ *@param    qrMatrix    The structure contain all the info of QR code
+ *          width       The width of the QR code
  *
- *
+ *@retval   format      The format of the QR code
  */
 Format *getFormat(int *qrMatrix, int width){
   Format *format;
@@ -175,10 +174,11 @@ Format *getFormat(int *qrMatrix, int width){
   return format ;
 }
 
-/* @brief   To get the version info of QR code
+/*@brief    To get the version info of QR code
  *
+ *@param    width      The width of QR code
  *
- *
+ *@retval   version    The version of the QR code. 
  */
 int getVersion(int width){
   int version;
@@ -186,10 +186,12 @@ int getVersion(int width){
   return version;
 }
 
-/* @brief   To get the error correction level and the mask pattern of QR code
+/*@brief   To get the error correction level and the mask pattern of QR code
  *
+ *@param      format      The format structure of the QR Code
+ *            ftm         The 15 bit of the format bits
  *
- *
+ *@retval     format      The format info of the QR code
  */
 Format *formatList(Format* format, int *ftm){
   char formatStr[16];
@@ -216,10 +218,11 @@ Format *formatList(Format* format, int *ftm){
   return format;
 }
 
-/* @brief   To unmask format bits of QR code
+/*@brief   To unmask format bits of QR code
  *
+ *@param    ftm     The 15 bits of the format of QR code
  *
- *
+ *@retval   ftm     The unmasked 15 bits of the format of QR code
  */
 int *unmaskFormatInfo(int* ftm){
   int i;
@@ -233,34 +236,12 @@ int *unmaskFormatInfo(int* ftm){
   return ftm;
 }
 
-
-int *errCorrectionDecode(QrBitReaderInfo *qrBitReaderInfo, int numOfErrDatacode){
-  int i, j, decimal = 0;
-  int *errCodeData = malloc(sizeof(int)*numOfErrDatacode-1);
-
-  
-  while (qrBitReaderInfo->data[i] != -1){
-    i++;
-  }
-  // printf("%d\n", i);
-  
-  for (numOfErrDatacode = numOfErrDatacode-1; numOfErrDatacode >= 0; numOfErrDatacode--){
-    i = i - 8;
-    decimal = 0;
-    
-    for (j = 0; j < 8; j++){
-      // printf("%d", qrBitReaderInfo->data[i+j]);
-      
-      decimal = decimal + (((int)pow(2,j))*qrBitReaderInfo->data[i+(7-j)]);
-    }
-    // printf("%d,", decimal);
-    errCodeData[numOfErrDatacode] = decimal;
-  }
-  
-  return errCodeData;
-}
-
-
+/*@brief   To filter the alignment pattern of the QR code
+ *
+ *@param    arr     The array data of the QR code
+ *
+ *@retval   arr     The filtered array data of the QR code
+ */
 int *aligmentFilterVer(int *arr, int version){
   
   int *position;
@@ -284,6 +265,15 @@ int *aligmentFilterVer(int *arr, int version){
   return arr;
 }
 
+
+/*@brief   To arrange the data back from different block
+ *
+ *@param    data              The array data of the QR code
+ *          version           The version of the QR code
+ *          errLevel          The error correction of the QR code
+ *
+ *@retval   arragedData       The arranged array data of the QR code
+ */
 int *dataArrange(int *data, int version, int errLevel){
   int totalCodeword = getTotalCodeword(version, errLevel);
   int *arragedData = malloc(sizeof(int)*totalCodeword*8);
@@ -303,7 +293,7 @@ int *dataArrange(int *data, int version, int errLevel){
           number = number + (((int)pow(2,x))*data[block*8+g1*offset+7-x]);
           i++;
         }
-        printf("%d, ", number );
+        // printf("%d, ", number );
         number = 0;
         g1++;
       }
@@ -339,6 +329,15 @@ int *dataArrange(int *data, int version, int errLevel){
   return arragedData;
 }
 
+
+/*@brief   To arrange the data of the error code back from different block and convert to decimal data
+ *
+ *@param    data              The array data of the QR code
+ *          version           The version of the QR code
+ *          errLevel          The error correction of the QR code
+ *
+ *@retval   arragedData       The arranged array data of the QR code
+ */
 int *errCodeDataArrange(int *data, int version, int errLevel){
   int totalCodeword = getTotalCodeword(version, errLevel);
   int eccPerBlock = numOfECCodewords[4*(version-1)+errLevel];
@@ -392,7 +391,7 @@ void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char c
     
   for (i = 0; i < numOfChar; i++) {
     codeword[i] = msg[i];
-    printf("%c", msg[i]);
+    // printf("%c", msg[i]);
   }
     
   for (i = 0; i < numOfECC; i++) {
@@ -404,6 +403,14 @@ void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char c
   // printf("(%d)", codeword[numOfChar]);
 }
 
+
+/*@brief   To get the total number of codeword in the QR code
+ *
+ *@param    version           The version of the QR code
+ *          errLevel          The error correction of the QR code
+ *
+ *@retval   total number of codeword in the QR code
+ */
 int getTotalCodeword(int version, int errLevel){
   
   return  numOfBlockG1[4*(version-1)+errLevel]*numOfDataCodeWordsG1[4*(version-1)+errLevel] \

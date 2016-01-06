@@ -48,7 +48,6 @@ int *aligmentFilterVer(int *arr, int version);
 int *dataArrange(int *data, int version, int errLevel);
 int getTotalCodeword(int version, int errLevel);
 int *errCodeDataArrange(int *data, int version, int errLevel);
-// void placeErrorCodeword(char *msg, int* errorCodeword);
 void placeErrorCodeword(unsigned char msg[], int* errorCodeword, unsigned char codeword[],int numOfChar, int numOfECC);
 char *dataDecodeMsg(int* data, int version, int errLevel, int *numOfChar);
 

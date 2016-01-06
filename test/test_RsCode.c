@@ -156,8 +156,8 @@ void test_rs_decode(void){
   generate_gf() ;
   printf("Look-up tables for GF(2**%2d)\n",mm) ;
   printf("  i   alpha_to[i]  index_of[i]\n") ;
-  for (i=0; i<=nn; i++)
-   printf("%3d      %3d          %3d\n",i,alpha_to[i],index_of[i]) ;
+  // for (i=0; i<=nn; i++)
+   // printf("%3d      %3d          %3d\n",i,alpha_to[i],index_of[i]) ;
   printf("\n\n") ;
 
 /* compute the generator polynomial for this RS code */
@@ -189,8 +189,8 @@ data[8] = 9 ;
   for (i=0; i<nn-kk; i++)  recd[i] = bb[i] ;
   for (i=0; i<kk; i++) recd[i+nn-kk] = data[i] ;
   
- for (i=0; i<nn-kk; i++) 
-   printf("%d,", bb[i]);
+ // for (i=0; i<nn-kk; i++) 
+   // printf("%d,", bb[i]);
 
 /* if you want to test the program, corrupt some of the elements of recd[]
    here. This can also be done easily in a debugger. */
@@ -207,8 +207,8 @@ data[8] = 9 ;
 /* print out the relevant stuff - initial and decoded {parity and message} */
   printf("Results for Reed-Solomon code (n=%3d, k=%3d, t= %3d)\n\n",nn,kk,tt) ;
   printf("  i  data[i]   recd[i](decoded)   (data, recd in polynomial form)\n");
-  for (i=0; i<nn-kk; i++)
-    printf("%3d    %3d      %3d\n",i, bb[i], recd[i]) ;
-  for (i=nn-kk; i<nn; i++)
-    printf("%3d    %3d      %3d\n",i, data[i-nn+kk], recd[i]) ;
+  // for (i=0; i<nn-kk; i++)
+    // printf("%3d    %3d      %3d\n",i, bb[i], recd[i]) ;
+  // for (i=nn-kk; i<nn; i++)
+    // printf("%3d    %3d      %3d\n",i, data[i-nn+kk], recd[i]) ;
 }

@@ -2,21 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Data *createData(){
-  int i;
-  Data *data = malloc(sizeof(Data));
-  data->next = NULL;
-  return data;
-}
+
 
 /**
+ *@brief    To retrieve the data in zig-zag motion
  *
+ *@param    arr       The 2d data array
+ *          column    The column size of the data
+ *          row       The row size of the data
  *
- *
- *
- *
+ *@retval   data      The retrieved data from the 2d array
  */
- 
 int *dataRetrive(int *arr, int column, int row){
   int *data = malloc((column+row)*10000);
   int i = column-1, j = row-1, k = 0, rowData = row-1;
@@ -64,43 +60,6 @@ int *dataRetrive(int *arr, int column, int row){
   }
   
   data[k] = -1;
-  
-  return data;
-}
-
-int *dataRetriveUpward(int *arr, int column, int row){
-  int *data = malloc((column+row)*8);
-  int i, j, k = 0;
-  
-  for(i = (column - 1); i >= 0 ; i--){
-    for(j = (row - 1); j >= (row - 2) ; j--){
-      data[k] = arr[i*row+j];
-      k++;
-    }
-  }
-  
-  for(i = 0; i <= (7) ; i++){
-    // printf("%d", data[i]);
-  }
-  
-  return data;
-}
-
-int *dataRetriveDownward(int *arr, int column, int row){
-  int *data = malloc((column+row)*8);
-  int i, j, k = 0;
-  
- for(i = 0 ; i <= (column - 1) ; i++){
-    for(j = (row-2-1); j >= (row-2-2) ; j--){
-      data[k] = arr[i*row+j];
-    // printf("%d", arr[i*row+j]);
-      k++;
-    }
-  }
-  
-  for(i = 0; i <= 7 ; i++){
-    // printf("%d", data[i]);
-  }
   
   return data;
 }
